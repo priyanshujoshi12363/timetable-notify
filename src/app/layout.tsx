@@ -11,29 +11,74 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: "Student Portal",
-    template: "%s | Student Portal",
+    default: "Timely – Smart Student Attendance & Timetable App",
+    template: "%s | Timely",
   },
   description:
-    "Smart academic dashboard for attendance tracking and class notifications.",
+    "Timely is a smart student portal that helps you track attendance, view daily timetables, and receive automatic class notifications. Stay organized and never miss a lecture.",
+
   keywords: [
-    "Student Portal",
-    "Attendance App",
-    "College Dashboard",
-    "Class Notifications",
+    "Timely App",
+    "Student Attendance Tracker",
+    "College Timetable App",
+    "Student Dashboard",
+    "Class Reminder App",
+    "Attendance Management System",
+    "College Notification App",
+    "Academic Planner",
+    "Student Productivity App",
   ],
-  authors: [{ name: "Your Name" }],
-  creator: "Your Name",
-  metadataBase: new URL("http://localhost:3000"),
+
+  authors: [{ name: "Priyanshu Joshi", url: "https://timetable-notify.onrender.com" }],
+  creator: "Priyanshu Joshi",
+  publisher: "Timely",
+
+  metadataBase: new URL("https://timetable-notify.onrender.com"),
+
+  alternates: {
+    canonical: "https://timetable-notify.onrender.com",
+  },
+
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-image-preview": "large",
+      "max-video-preview": -1,
+      "max-snippet": -1,
+    },
+  },
+
   openGraph: {
-    title: "Student Portal",
+    title: "Timely – Smart Student Attendance & Timetable App",
     description:
-      "Track attendance and receive smart class notifications.",
-    url: "http://localhost:3000",
-    siteName: "Student Portal",
+      "Track attendance, manage your timetable, and receive smart class notifications automatically with Timely.",
+    url: "https://timetable-notify.onrender.com",
+    siteName: "Timely",
     locale: "en_US",
     type: "website",
+    images: [
+      {
+        url: "/og-image.png", // Add this file in /public
+        width: 1200,
+        height: 630,
+        alt: "Timely Student Dashboard Preview",
+      },
+    ],
   },
+
+  twitter: {
+    card: "summary_large_image",
+    title: "Timely – Student Attendance & Timetable App",
+    description:
+      "Smart attendance tracking and class notifications for students.",
+    images: ["/og-image.png"],
+    creator: "@yourtwitterhandle",
+  },
+
+  category: "education",
 };
 
 export default function RootLayout({
