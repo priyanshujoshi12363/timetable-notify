@@ -19,7 +19,7 @@
 key.json
 # production
 /build
-src/data/time_table/BTech_CSE_AIML.ts
+
 # misc
 .DS_Store
 *.pem
