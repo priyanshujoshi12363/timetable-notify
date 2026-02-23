@@ -1,25 +1,40 @@
 import mongoose, { Schema, Document, Model } from "mongoose";
 
 export interface IUserDevice extends Document {
-  course: string;
   branch: string;
+  course: string;
   division: string;
+  semester: number;
+  academicYear: string;
+
   fcmToken: string;
+
   createdAt: Date;
   updatedAt: Date;
 }
 
 const UserDeviceSchema: Schema<IUserDevice> = new Schema(
   {
-    course: {
-      type: String,
-      required: true,
-    },
     branch: {
       type: String,
       required: true,
+      trim: true,
+    },
+    course: {
+      type: String,
+      required: true,
+      trim: true,
     },
     division: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+    semester: {
+      type: Number,
+      required: true,
+    },
+    academicYear: {
       type: String,
       required: true,
     },
@@ -32,8 +47,13 @@ const UserDeviceSchema: Schema<IUserDevice> = new Schema(
   { timestamps: true }
 );
 
-// Index for faster filtering
-UserDeviceSchema.index({ course: 1, branch: 1, division: 1 });
+UserDeviceSchema.index({
+  branch: 1,
+  course: 1,
+  division: 1,
+  semester: 1,
+  academicYear: 1,
+});
 
 const UserDevice: Model<IUserDevice> =
   mongoose.models.UserDevice ||

@@ -8,13 +8,39 @@ export async function POST(req: Request) {
 
     const body = await req.json();
 
-    const { course, branch, division, fcmToken } = body;
+    const {
+      branch,
+      course,
+      division,
+      semester,
+      fcmToken,
+    } = body;
 
-    if (!course || !branch || !division || !fcmToken) {
+    // 🔥 Default academic year
+    const academicYear = "2024-2025";
+
+    // ✅ Validation
+    if (
+      !branch ||
+      !course ||
+      !division ||
+      !semester ||
+      !fcmToken
+    ) {
       return NextResponse.json(
         {
           success: false,
           message: "All fields are required",
+        },
+        { status: 400 }
+      );
+    }
+
+    if (typeof semester !== "number") {
+      return NextResponse.json(
+        {
+          success: false,
+          message: "Semester must be a number",
         },
         { status: 400 }
       );
@@ -30,10 +56,16 @@ export async function POST(req: Request) {
       );
     }
 
-
+    // ✅ Upsert device
     const device = await UserDevice.findOneAndUpdate(
       { fcmToken },
-      { course, branch, division },
+      {
+        branch,
+        course,
+        division,
+        semester,
+        academicYear, // auto set
+      },
       { upsert: true, new: true }
     );
 
@@ -45,16 +77,16 @@ export async function POST(req: Request) {
       },
       { status: 200 }
     );
- } catch (error: any) {
-  console.error("FULL ERROR:", error);
 
-  return NextResponse.json(
-    {
-      success: false,
-      message: error.message,
-      stack: error.stack
-    },
-    { status: 500 }
-  );
-}
+  } catch (error: any) {
+    console.error("FULL ERROR:", error);
+
+    return NextResponse.json(
+      {
+        success: false,
+        message: error.message,
+      },
+      { status: 500 }
+    );
+  }
 }

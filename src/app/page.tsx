@@ -6,7 +6,7 @@ import {
   ChevronDown, Bell, BookOpen, GitBranch, Layers, 
   CheckCircle, Edit2, ChevronRight, Calendar, Clock, 
   MapPin, Users, Loader2, AlertCircle, Database, Sun,
-  X, Save
+  X, Save, GraduationCap
 } from "lucide-react";
 
 interface TimetableSlot {
@@ -33,15 +33,17 @@ interface SubscriptionData {
   branch: string;
   course: string;
   division: string;
+  semester: number;
   createdAt: string;
   updatedAt: string;
   __v: number;
 }
 
 export default function NotificationPage() {
-  const [course, setCourse] = useState("B.Tech");
-  const [branch, setBranch] = useState("CSE-AIML");
+  const [branch, setBranch] = useState("CSE");
+  const [course, setCourse] = useState("AIML");
   const [division, setDivision] = useState("");
+  const [semester, setSemester] = useState(2);
   const [isEditing, setIsEditing] = useState(true);
   const [loading, setLoading] = useState(false);
   const [editLoading, setEditLoading] = useState(false);
@@ -54,11 +56,13 @@ export default function NotificationPage() {
   const [showEditModal, setShowEditModal] = useState(false);
   
   // Edit form state
-  const [editCourse, setEditCourse] = useState("B.Tech");
-  const [editBranch, setEditBranch] = useState("CSE-AIML");
+  const [editBranch, setEditBranch] = useState("CSE");
+  const [editCourse, setEditCourse] = useState("AIML");
   const [editDivision, setEditDivision] = useState("");
+  const [editSemester, setEditSemester] = useState(2);
   
-  const divisions = Array.from({ length: 15 }, (_, i) => i + 1);
+  const divisions = Array.from({ length: 15 }, (_, i) => `2CSE AIML ${i + 1}`);
+  const semesters = [1, 2];
   
   // Get today's day name
   const getTodayDay = () => {
@@ -76,29 +80,33 @@ export default function NotificationPage() {
         const parsedData = JSON.parse(savedSubscription);
         if (parsedData._id) {
           setSubscriptionData(parsedData);
-          setCourse(parsedData.course);
           setBranch(parsedData.branch);
+          setCourse(parsedData.course);
           setDivision(parsedData.division);
+          setSemester(parsedData.semester);
           
           // Set edit form values
-          setEditCourse(parsedData.course);
           setEditBranch(parsedData.branch);
+          setEditCourse(parsedData.course);
           setEditDivision(parsedData.division);
+          setEditSemester(parsedData.semester);
         } else {
-          setCourse(parsedData.course);
           setBranch(parsedData.branch);
+          setCourse(parsedData.course);
           setDivision(parsedData.division);
+          setSemester(parsedData.semester);
           
           // Set edit form values
-          setEditCourse(parsedData.course);
           setEditBranch(parsedData.branch);
+          setEditCourse(parsedData.course);
           setEditDivision(parsedData.division);
+          setEditSemester(parsedData.semester);
         }
         setIsSaved(true);
         setIsEditing(false);
         
         // Fetch timetable for the saved division
-        fetchTimetable(parsedData.division || parsedData.division);
+        fetchTimetable(parsedData.division);
       } catch (error) {
         console.error("Error parsing saved subscription:", error);
       }
@@ -110,7 +118,7 @@ export default function NotificationPage() {
     setTimetableLoading(true);
     try {
       // Fetch data for today only
-      const response = await fetch(`/api/timetable?division=2CSE%20AIML%20${div}`);
+      const response = await fetch(`/api/timetable?division=${encodeURIComponent(div)}`);
       if (response.ok) {
         const data = await response.json();
         setTimetable(data);
@@ -141,9 +149,10 @@ export default function NotificationPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          course,
           branch,
+          course,
           division,
+          semester,
           fcmToken: token,
         }),
       });
@@ -155,9 +164,10 @@ export default function NotificationPage() {
         setSubscriptionData(data.data);
         
         // Set edit form values
-        setEditCourse(data.data.course);
         setEditBranch(data.data.branch);
+        setEditCourse(data.data.course);
         setEditDivision(data.data.division);
+        setEditSemester(data.data.semester);
 
         // Fetch today's timetable
         await fetchTimetable(division);
@@ -187,6 +197,7 @@ export default function NotificationPage() {
           branch: editBranch,
           course: editCourse,
           division: editDivision,
+          semester: editSemester,
         }),
       });
 
@@ -199,6 +210,7 @@ export default function NotificationPage() {
           branch: editBranch,
           course: editCourse,
           division: editDivision,
+          semester: editSemester,
           updatedAt: new Date().toISOString(),
         };
         
@@ -206,9 +218,10 @@ export default function NotificationPage() {
         setSubscriptionData(updatedData);
         
         // Update main state
-        setCourse(editCourse);
         setBranch(editBranch);
+        setCourse(editCourse);
         setDivision(editDivision);
+        setSemester(editSemester);
         
         // Fetch new timetable
         await fetchTimetable(editDivision);
@@ -225,9 +238,10 @@ export default function NotificationPage() {
 
   const handleEditClick = () => {
     // Populate edit form with current values
-    setEditCourse(course);
     setEditBranch(branch);
+    setEditCourse(course);
     setEditDivision(division);
+    setEditSemester(semester);
     setShowEditModal(true);
   };
 
@@ -274,7 +288,7 @@ export default function NotificationPage() {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-4 px-3 sm:py-8 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto space-y-4 sm:space-y-8">
         
-        {/* Header - More compact on mobile */}
+        {/* Header */}
         <div className="flex justify-between items-center backdrop-blur-sm bg-white/30 p-4 sm:p-6 rounded-xl sm:rounded-2xl shadow-lg border border-white/20">
           <div className="flex items-center gap-2 sm:gap-3">
             <div className="p-2 sm:p-3 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg sm:rounded-xl shadow-lg">
@@ -291,7 +305,7 @@ export default function NotificationPage() {
           </div>
         </div>
 
-        {/* Subscription Card - Better mobile padding */}
+        {/* Subscription Card */}
         <div className="relative overflow-hidden rounded-xl sm:rounded-2xl bg-white shadow-xl border border-gray-100">
           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600"></div>
           
@@ -304,31 +318,8 @@ export default function NotificationPage() {
             </div>
 
             <div className="space-y-4 sm:space-y-6">
-              {/* Course */}
-              <div className="space-y-1 sm:space-y-2">
-                <label className="flex items-center gap-2 text-xs sm:text-sm font-medium text-gray-600">
-                  <BookOpen className="w-3 h-3 sm:w-4 sm:h-4" />
-                  Course Name
-                </label>
-                <div className="relative">
-                  <select
-                    disabled={!isEditing}
-                    value={course}
-                    onChange={(e) => setCourse(e.target.value)}
-                    className={`w-full appearance-none rounded-lg sm:rounded-xl border ${
-                      isEditing 
-                        ? 'border-gray-200 hover:border-blue-300 focus:border-blue-500 cursor-pointer' 
-                        : 'border-gray-100 cursor-default bg-gray-50'
-                    } bg-white px-3 sm:px-4 py-2.5 sm:py-3.5 pr-8 sm:pr-10 text-sm sm:text-base text-gray-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:text-gray-500`}
-                  >
-                    <option>B.Tech</option>
-                  </select>
-                  <ChevronDown className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
-                </div>
-              </div>
-
-              {/* Branch and Division grid - Stack on mobile */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+              {/* Branch and Course - First row */}
+              <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1 sm:space-y-2">
                   <label className="flex items-center gap-2 text-xs sm:text-sm font-medium text-gray-600">
                     <GitBranch className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -345,12 +336,37 @@ export default function NotificationPage() {
                           : 'border-gray-100 cursor-default bg-gray-50'
                       } bg-white px-3 sm:px-4 py-2.5 sm:py-3.5 pr-8 sm:pr-10 text-sm sm:text-base text-gray-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:text-gray-500`}
                     >
-                      <option>CSE-AIML</option>
+                      <option>CSE</option>
                     </select>
                     <ChevronDown className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
                   </div>
                 </div>
 
+                <div className="space-y-1 sm:space-y-2">
+                  <label className="flex items-center gap-2 text-xs sm:text-sm font-medium text-gray-600">
+                    <BookOpen className="w-3 h-3 sm:w-4 sm:h-4" />
+                    Course
+                  </label>
+                  <div className="relative">
+                    <select
+                      disabled={!isEditing}
+                      value={course}
+                      onChange={(e) => setCourse(e.target.value)}
+                      className={`w-full appearance-none rounded-lg sm:rounded-xl border ${
+                        isEditing 
+                          ? 'border-gray-200 hover:border-blue-300 focus:border-blue-500 cursor-pointer' 
+                          : 'border-gray-100 cursor-default bg-gray-50'
+                      } bg-white px-3 sm:px-4 py-2.5 sm:py-3.5 pr-8 sm:pr-10 text-sm sm:text-base text-gray-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:text-gray-500`}
+                    >
+                      <option>AIML</option>
+                    </select>
+                    <ChevronDown className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Division and Semester - Second row */}
+              <div className="grid grid-cols-2 gap-4">
                 <div className="space-y-1 sm:space-y-2">
                   <label className="flex items-center gap-2 text-xs sm:text-sm font-medium text-gray-600">
                     <Layers className="w-3 h-3 sm:w-4 sm:h-4" />
@@ -368,8 +384,32 @@ export default function NotificationPage() {
                       } bg-white px-3 sm:px-4 py-2.5 sm:py-3.5 pr-8 sm:pr-10 text-sm sm:text-base text-gray-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:text-gray-500`}
                     >
                       <option value="">Select division</option>
-                      {divisions.map((d) => (
-                        <option key={d} value={d}>Division {d}</option>
+                      {divisions.map((div) => (
+                        <option key={div} value={div}>{div}</option>
+                      ))}
+                    </select>
+                    <ChevronDown className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
+                  </div>
+                </div>
+
+                <div className="space-y-1 sm:space-y-2">
+                  <label className="flex items-center gap-2 text-xs sm:text-sm font-medium text-gray-600">
+                    <GraduationCap className="w-3 h-3 sm:w-4 sm:h-4" />
+                    Semester
+                  </label>
+                  <div className="relative">
+                    <select
+                      disabled={!isEditing}
+                      value={semester}
+                      onChange={(e) => setSemester(Number(e.target.value))}
+                      className={`w-full appearance-none rounded-lg sm:rounded-xl border ${
+                        isEditing 
+                          ? 'border-gray-200 hover:border-blue-300 focus:border-blue-500 cursor-pointer' 
+                          : 'border-gray-100 cursor-default bg-gray-50'
+                      } bg-white px-3 sm:px-4 py-2.5 sm:py-3.5 pr-8 sm:pr-10 text-sm sm:text-base text-gray-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:text-gray-500`}
+                    >
+                      {semesters.map((sem) => (
+                        <option key={sem} value={sem}>Semester {sem}</option>
                       ))}
                     </select>
                     <ChevronDown className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
@@ -409,7 +449,7 @@ export default function NotificationPage() {
         {/* Today's Timetable Section */}
         {isSaved && (
           <div className="space-y-3 sm:space-y-4">
-            {/* Today's Header - Stack on mobile */}
+            {/* Today's Header */}
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
               <div className="flex items-center gap-2 sm:gap-3">
                 <div className="p-1.5 sm:p-2 bg-gradient-to-r from-amber-500 to-orange-500 rounded-lg shadow-lg">
@@ -420,12 +460,12 @@ export default function NotificationPage() {
                     Today's Schedule
                   </h3>
                   <p className="text-xs sm:text-sm text-gray-500">
-                    {getTodayDay()} • Division {division}
+                    {getTodayDay()} • {division} • Sem {semester}
                   </p>
                 </div>
               </div>
               
-              {/* Edit Button - Full width on mobile */}
+              {/* Edit Button */}
               <button
                 onClick={handleEditClick}
                 className="flex items-center justify-center gap-2 px-3 sm:px-4 py-2 sm:py-2 bg-white rounded-lg sm:rounded-xl shadow-md hover:shadow-lg transition-all duration-300 border border-gray-200 hover:border-blue-200 text-sm sm:text-base w-full sm:w-auto"
@@ -530,7 +570,7 @@ export default function NotificationPage() {
           </div>
         )}
 
-        {/* Edit Modal - Better mobile sizing */}
+        {/* Edit Modal */}
         {showEditModal && (
           <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-3 sm:p-4">
             <div className="bg-white rounded-xl sm:rounded-2xl shadow-2xl w-full max-w-md mx-auto animate-fadeIn">
@@ -548,40 +588,57 @@ export default function NotificationPage() {
               </div>
               
               <div className="p-4 sm:p-6 space-y-3 sm:space-y-4">
-                <div className="space-y-1 sm:space-y-2">
-                  <label className="text-xs sm:text-sm font-medium text-gray-600">Course</label>
-                  <select
-                    value={editCourse}
-                    onChange={(e) => setEditCourse(e.target.value)}
-                    className="w-full rounded-lg sm:rounded-xl border border-gray-200 px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-                  >
-                    <option>B.Tech</option>
-                  </select>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1 sm:space-y-2">
+                    <label className="text-xs sm:text-sm font-medium text-gray-600">Branch</label>
+                    <select
+                      value={editBranch}
+                      onChange={(e) => setEditBranch(e.target.value)}
+                      className="w-full rounded-lg sm:rounded-xl border border-gray-200 px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                    >
+                      <option>CSE</option>
+                    </select>
+                  </div>
+                  
+                  <div className="space-y-1 sm:space-y-2">
+                    <label className="text-xs sm:text-sm font-medium text-gray-600">Course</label>
+                    <select
+                      value={editCourse}
+                      onChange={(e) => setEditCourse(e.target.value)}
+                      className="w-full rounded-lg sm:rounded-xl border border-gray-200 px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                    >
+                      <option>AIML</option>
+                    </select>
+                  </div>
                 </div>
                 
-                <div className="space-y-1 sm:space-y-2">
-                  <label className="text-xs sm:text-sm font-medium text-gray-600">Branch</label>
-                  <select
-                    value={editBranch}
-                    onChange={(e) => setEditBranch(e.target.value)}
-                    className="w-full rounded-lg sm:rounded-xl border border-gray-200 px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-                  >
-                    <option>CSE-AIML</option>
-                  </select>
-                </div>
-                
-                <div className="space-y-1 sm:space-y-2">
-                  <label className="text-xs sm:text-sm font-medium text-gray-600">Division</label>
-                  <select
-                    value={editDivision}
-                    onChange={(e) => setEditDivision(e.target.value)}
-                    className="w-full rounded-lg sm:rounded-xl border border-gray-200 px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
-                  >
-                    <option value="">Select division</option>
-                    {divisions.map((d) => (
-                      <option key={d} value={d}>Division {d}</option>
-                    ))}
-                  </select>
+                <div className="grid grid-cols-2 gap-3">
+                  <div className="space-y-1 sm:space-y-2">
+                    <label className="text-xs sm:text-sm font-medium text-gray-600">Division</label>
+                    <select
+                      value={editDivision}
+                      onChange={(e) => setEditDivision(e.target.value)}
+                      className="w-full rounded-lg sm:rounded-xl border border-gray-200 px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                    >
+                      <option value="">Select division</option>
+                      {divisions.map((div) => (
+                        <option key={div} value={div}>{div}</option>
+                      ))}
+                    </select>
+                  </div>
+                  
+                  <div className="space-y-1 sm:space-y-2">
+                    <label className="text-xs sm:text-sm font-medium text-gray-600">Semester</label>
+                    <select
+                      value={editSemester}
+                      onChange={(e) => setEditSemester(Number(e.target.value))}
+                      className="w-full rounded-lg sm:rounded-xl border border-gray-200 px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                    >
+                      {semesters.map((sem) => (
+                        <option key={sem} value={sem}>Semester {sem}</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
               </div>
               
