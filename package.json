@@ -9,6 +9,12 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@heroicons/react": "^2.2.0",
+    "firebase": "^12.9.0",
+    "firebase-admin": "^13.6.1",
+    "heroicons": "^2.2.0",
+    "lucide-react": "^0.575.0",
+    "mongoose": "^9.2.1",
     "next": "16.1.6",
     "react": "19.2.3",
     "react-dom": "19.2.3"
