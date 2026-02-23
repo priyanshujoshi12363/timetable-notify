@@ -248,18 +248,18 @@ export default function NotificationPage() {
   // Don't render until mounted
   if (!mounted) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto space-y-8">
-          <div className="flex justify-between items-center bg-white/30 p-6 rounded-2xl shadow-lg border border-white/20">
-            <div className="flex items-center gap-3">
-              <div className="p-3 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl shadow-lg">
-                <Bell className="w-6 h-6 text-white" />
+      <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-4 px-3 sm:py-8 sm:px-6 lg:px-8">
+        <div className="max-w-4xl mx-auto">
+          <div className="flex justify-between items-center bg-white/30 p-4 sm:p-6 rounded-xl sm:rounded-2xl shadow-lg border border-white/20">
+            <div className="flex items-center gap-2 sm:gap-3">
+              <div className="p-2 sm:p-3 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg sm:rounded-xl shadow-lg">
+                <Bell className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
               </div>
               <div>
-                <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
+                <h1 className="text-xl sm:text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
                   Notifications
                 </h1>
-                <p className="text-sm text-gray-500 mt-1">
+                <p className="text-xs sm:text-sm text-gray-500 mt-0.5 sm:mt-1">
                   Stay updated with your academic activities
                 </p>
               </div>
@@ -271,43 +271,43 @@ export default function NotificationPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto space-y-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-4 px-3 sm:py-8 sm:px-6 lg:px-8">
+      <div className="max-w-4xl mx-auto space-y-4 sm:space-y-8">
         
-        {/* Header */}
-        <div className="flex justify-between items-center backdrop-blur-sm bg-white/30 p-6 rounded-2xl shadow-lg border border-white/20">
-          <div className="flex items-center gap-3">
-            <div className="p-3 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl shadow-lg">
-              <Bell className="w-6 h-6 text-white" />
+        {/* Header - More compact on mobile */}
+        <div className="flex justify-between items-center backdrop-blur-sm bg-white/30 p-4 sm:p-6 rounded-xl sm:rounded-2xl shadow-lg border border-white/20">
+          <div className="flex items-center gap-2 sm:gap-3">
+            <div className="p-2 sm:p-3 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg sm:rounded-xl shadow-lg">
+              <Bell className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
+              <h1 className="text-xl sm:text-3xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
                 Notifications
               </h1>
-              <p className="text-sm text-gray-500 mt-1">
+              <p className="text-xs sm:text-sm text-gray-500 mt-0.5 sm:mt-1">
                 Stay updated with your academic activities
               </p>
             </div>
           </div>
         </div>
 
-        {/* Subscription Card */}
-        <div className="relative overflow-hidden rounded-2xl bg-white shadow-xl border border-gray-100">
+        {/* Subscription Card - Better mobile padding */}
+        <div className="relative overflow-hidden rounded-xl sm:rounded-2xl bg-white shadow-xl border border-gray-100">
           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600"></div>
           
-          <div className="p-8">
-            <div className="flex items-center justify-between mb-6">
+          <div className="p-4 sm:p-8">
+            <div className="flex items-center justify-between mb-4 sm:mb-6">
               <div className="flex items-center gap-2">
-                <Layers className="w-5 h-5 text-blue-600" />
-                <h2 className="text-lg font-semibold text-gray-800">Subscription Details</h2>
+                <Layers className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
+                <h2 className="text-base sm:text-lg font-semibold text-gray-800">Subscription Details</h2>
               </div>
             </div>
 
-            <div className="space-y-6">
+            <div className="space-y-4 sm:space-y-6">
               {/* Course */}
-              <div className="space-y-2">
-                <label className="flex items-center gap-2 text-sm font-medium text-gray-600">
-                  <BookOpen className="w-4 h-4" />
+              <div className="space-y-1 sm:space-y-2">
+                <label className="flex items-center gap-2 text-xs sm:text-sm font-medium text-gray-600">
+                  <BookOpen className="w-3 h-3 sm:w-4 sm:h-4" />
                   Course Name
                 </label>
                 <div className="relative">
@@ -315,23 +315,23 @@ export default function NotificationPage() {
                     disabled={!isEditing}
                     value={course}
                     onChange={(e) => setCourse(e.target.value)}
-                    className={`w-full appearance-none rounded-xl border ${
+                    className={`w-full appearance-none rounded-lg sm:rounded-xl border ${
                       isEditing 
                         ? 'border-gray-200 hover:border-blue-300 focus:border-blue-500 cursor-pointer' 
                         : 'border-gray-100 cursor-default bg-gray-50'
-                    } bg-white px-4 py-3.5 pr-10 text-gray-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:text-gray-500`}
+                    } bg-white px-3 sm:px-4 py-2.5 sm:py-3.5 pr-8 sm:pr-10 text-sm sm:text-base text-gray-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:text-gray-500`}
                   >
                     <option>B.Tech</option>
                   </select>
-                  <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                  <ChevronDown className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
                 </div>
               </div>
 
-              {/* Branch and Division grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div className="space-y-2">
-                  <label className="flex items-center gap-2 text-sm font-medium text-gray-600">
-                    <GitBranch className="w-4 h-4" />
+              {/* Branch and Division grid - Stack on mobile */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+                <div className="space-y-1 sm:space-y-2">
+                  <label className="flex items-center gap-2 text-xs sm:text-sm font-medium text-gray-600">
+                    <GitBranch className="w-3 h-3 sm:w-4 sm:h-4" />
                     Branch
                   </label>
                   <div className="relative">
@@ -339,21 +339,21 @@ export default function NotificationPage() {
                       disabled={!isEditing}
                       value={branch}
                       onChange={(e) => setBranch(e.target.value)}
-                      className={`w-full appearance-none rounded-xl border ${
+                      className={`w-full appearance-none rounded-lg sm:rounded-xl border ${
                         isEditing 
                           ? 'border-gray-200 hover:border-blue-300 focus:border-blue-500 cursor-pointer' 
                           : 'border-gray-100 cursor-default bg-gray-50'
-                      } bg-white px-4 py-3.5 pr-10 text-gray-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:text-gray-500`}
+                      } bg-white px-3 sm:px-4 py-2.5 sm:py-3.5 pr-8 sm:pr-10 text-sm sm:text-base text-gray-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:text-gray-500`}
                     >
                       <option>CSE-AIML</option>
                     </select>
-                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <ChevronDown className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <label className="flex items-center gap-2 text-sm font-medium text-gray-600">
-                    <Layers className="w-4 h-4" />
+                <div className="space-y-1 sm:space-y-2">
+                  <label className="flex items-center gap-2 text-xs sm:text-sm font-medium text-gray-600">
+                    <Layers className="w-3 h-3 sm:w-4 sm:h-4" />
                     Division
                   </label>
                   <div className="relative">
@@ -361,41 +361,41 @@ export default function NotificationPage() {
                       disabled={!isEditing}
                       value={division}
                       onChange={(e) => setDivision(e.target.value)}
-                      className={`w-full appearance-none rounded-xl border ${
+                      className={`w-full appearance-none rounded-lg sm:rounded-xl border ${
                         isEditing 
                           ? 'border-gray-200 hover:border-blue-300 focus:border-blue-500 cursor-pointer' 
                           : 'border-gray-100 cursor-default bg-gray-50'
-                      } bg-white px-4 py-3.5 pr-10 text-gray-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:text-gray-500`}
+                      } bg-white px-3 sm:px-4 py-2.5 sm:py-3.5 pr-8 sm:pr-10 text-sm sm:text-base text-gray-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20 disabled:text-gray-500`}
                     >
                       <option value="">Select division</option>
                       {divisions.map((d) => (
                         <option key={d} value={d}>Division {d}</option>
                       ))}
                     </select>
-                    <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+                    <ChevronDown className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
                   </div>
                 </div>
               </div>
 
               {/* Save button */}
               {isEditing && (
-                <div className="pt-4">
+                <div className="pt-2 sm:pt-4">
                   <button
                     onClick={handleSave}
                     disabled={loading || !division}
-                    className="group relative w-full overflow-hidden rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-6 py-4 text-white font-semibold shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.02] disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed"
+                    className="group relative w-full overflow-hidden rounded-lg sm:rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base text-white font-semibold shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.02] disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed"
                   >
                     <span className="relative z-10 flex items-center justify-center gap-2">
                       {loading ? (
                         <>
-                          <Loader2 className="animate-spin h-5 w-5" />
+                          <Loader2 className="animate-spin h-4 w-4 sm:h-5 sm:w-5" />
                           <span>Saving...</span>
                         </>
                       ) : (
                         <>
-                          <CheckCircle className="w-5 h-5" />
+                          <CheckCircle className="w-4 h-4 sm:w-5 sm:h-5" />
                           <span>Save Subscription</span>
-                          <ChevronRight className="w-4 h-4" />
+                          <ChevronRight className="w-3 h-3 sm:w-4 sm:h-4" />
                         </>
                       )}
                     </span>
@@ -403,56 +403,35 @@ export default function NotificationPage() {
                 </div>
               )}
             </div>
-
-            {/* Subscription Metadata */}
-            {subscriptionData && !isEditing && (
-              <div className="mt-6 pt-6 border-t border-gray-100">
-                <div className="grid grid-cols-2 gap-4 text-xs text-gray-500">
-                  <div>
-                    <span className="block text-gray-400 mb-1">Subscription ID</span>
-                    <span className="font-mono">{subscriptionData._id}</span>
-                  </div>
-                  <div>
-                    <span className="block text-gray-400 mb-1">Created</span>
-                    <span>{formatDate(subscriptionData.createdAt)}</span>
-                  </div>
-                </div>
-              </div>
-            )}
           </div>
         </div>
 
         {/* Today's Timetable Section */}
         {isSaved && (
-          <div className="space-y-4">
-            {/* Today's Header */}
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-gradient-to-r from-amber-500 to-orange-500 rounded-lg shadow-lg">
-                  <Sun className="w-5 h-5 text-white" />
+          <div className="space-y-3 sm:space-y-4">
+            {/* Today's Header - Stack on mobile */}
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-0">
+              <div className="flex items-center gap-2 sm:gap-3">
+                <div className="p-1.5 sm:p-2 bg-gradient-to-r from-amber-500 to-orange-500 rounded-lg shadow-lg">
+                  <Sun className="w-4 h-4 sm:w-5 sm:h-5 text-white" />
                 </div>
                 <div>
-                  <h3 className="text-lg font-semibold text-gray-800">
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-800">
                     Today's Schedule
                   </h3>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-xs sm:text-sm text-gray-500">
                     {getTodayDay()} • Division {division}
                   </p>
                 </div>
-                {timetable && (
-                  <span className="ml-3 px-3 py-1 bg-blue-50 text-blue-600 text-xs font-medium rounded-full">
-                    {timetable.day}
-                  </span>
-                )}
               </div>
               
-              {/* Edit Button */}
+              {/* Edit Button - Full width on mobile */}
               <button
                 onClick={handleEditClick}
-                className="group flex items-center gap-2 px-4 py-2 bg-white rounded-xl shadow-md hover:shadow-lg transition-all duration-300 border border-gray-200 hover:border-blue-200"
+                className="flex items-center justify-center gap-2 px-3 sm:px-4 py-2 sm:py-2 bg-white rounded-lg sm:rounded-xl shadow-md hover:shadow-lg transition-all duration-300 border border-gray-200 hover:border-blue-200 text-sm sm:text-base w-full sm:w-auto"
               >
-                <Edit2 className="w-4 h-4 text-gray-600 group-hover:text-blue-600 transition-colors" />
-                <span className="text-sm font-medium text-gray-700 group-hover:text-blue-600 transition-colors">
+                <Edit2 className="w-3 h-3 sm:w-4 sm:h-4 text-gray-600 group-hover:text-blue-600 transition-colors" />
+                <span className="text-xs sm:text-sm font-medium text-gray-700 group-hover:text-blue-600 transition-colors">
                   Edit Subscription
                 </span>
               </button>
@@ -460,52 +439,52 @@ export default function NotificationPage() {
 
             {/* Timetable Display */}
             {timetableLoading ? (
-              <div className="flex flex-col items-center justify-center py-16 bg-white rounded-2xl shadow-xl">
-                <Loader2 className="w-12 h-12 text-blue-600 animate-spin mb-4" />
-                <p className="text-gray-500">Loading today's schedule...</p>
+              <div className="flex flex-col items-center justify-center py-8 sm:py-16 bg-white rounded-xl sm:rounded-2xl shadow-xl">
+                <Loader2 className="w-8 h-8 sm:w-12 sm:h-12 text-blue-600 animate-spin mb-3 sm:mb-4" />
+                <p className="text-xs sm:text-sm text-gray-500">Loading today's schedule...</p>
               </div>
             ) : timetable ? (
-              <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-                <div className="p-4 bg-gradient-to-r from-blue-600 to-indigo-600">
-                  <h4 className="text-lg font-bold text-white flex items-center gap-2">
-                    <Calendar className="w-5 h-5" />
+              <div className="bg-white rounded-xl sm:rounded-2xl shadow-xl overflow-hidden">
+                <div className="p-3 sm:p-4 bg-gradient-to-r from-blue-600 to-indigo-600">
+                  <h4 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+                    <Calendar className="w-4 h-4 sm:w-5 sm:h-5" />
                     {timetable.day}'s Classes
                   </h4>
                 </div>
                 
-                <div className="p-6 space-y-4">
+                <div className="p-3 sm:p-6 space-y-3 sm:space-y-4">
                   {timetable.slots.map((slot, index) => (
                     <div
                       key={index}
-                      className="group relative overflow-hidden rounded-xl border border-gray-100 hover:border-blue-200 transition-all duration-300 hover:shadow-lg"
+                      className="group relative overflow-hidden rounded-lg sm:rounded-xl border border-gray-100 hover:border-blue-200 transition-all duration-300 hover:shadow-lg"
                     >
                       {/* Time header */}
-                      <div className="bg-gray-50 px-4 py-3 border-b border-gray-100 flex items-center gap-2">
-                        <Clock className="w-4 h-4 text-blue-600" />
-                        <span className="text-sm font-medium text-gray-700">
+                      <div className="bg-gray-50 px-3 sm:px-4 py-2 sm:py-3 border-b border-gray-100 flex items-center gap-2">
+                        <Clock className="w-3 h-3 sm:w-4 sm:h-4 text-blue-600" />
+                        <span className="text-xs sm:text-sm font-medium text-gray-700">
                           {formatTime(slot.time)}
                         </span>
                       </div>
 
                       {/* Content */}
-                      <div className="p-4">
+                      <div className="p-3 sm:p-4">
                         {slot.batches && slot.batches.length > 0 ? (
                           // Multiple batches
-                          <div className="space-y-3">
+                          <div className="space-y-2 sm:space-y-3">
                             {slot.batches.map((batch, idx) => (
-                              <div key={idx} className="flex flex-wrap items-center gap-4 p-3 bg-blue-50/50 rounded-lg">
-                                <span className="px-2 py-1 bg-blue-600 text-white text-xs font-medium rounded-full">
-                                  Batch {batch.batch}
+                              <div key={idx} className="flex flex-wrap items-center gap-2 sm:gap-4 p-2 sm:p-3 bg-blue-50/50 rounded-lg text-xs sm:text-sm">
+                                <span className="px-1.5 sm:px-2 py-0.5 sm:py-1 bg-blue-600 text-white text-xs font-medium rounded-full">
+                                  B{batch.batch}
                                 </span>
-                                <span className="text-sm font-semibold text-gray-800">{batch.subject}</span>
+                                <span className="font-semibold text-gray-800">{batch.subject}</span>
                                 {batch.faculty && (
-                                  <span className="text-sm text-gray-600 flex items-center gap-1">
+                                  <span className="text-gray-600 flex items-center gap-1">
                                     <Users className="w-3 h-3" />
                                     {batch.faculty}
                                   </span>
                                 )}
                                 {batch.room && (
-                                  <span className="text-sm text-gray-600 flex items-center gap-1">
+                                  <span className="text-gray-600 flex items-center gap-1">
                                     <MapPin className="w-3 h-3" />
                                     {batch.room}
                                   </span>
@@ -515,16 +494,16 @@ export default function NotificationPage() {
                           </div>
                         ) : slot.subject ? (
                           // Single class
-                          <div className="flex flex-wrap items-center gap-4">
-                            <span className="text-base font-semibold text-gray-800">{slot.subject}</span>
+                          <div className="flex flex-wrap items-center gap-2 sm:gap-4 text-xs sm:text-sm">
+                            <span className="font-semibold text-gray-800">{slot.subject}</span>
                             {slot.faculty && (
-                              <span className="text-sm text-gray-600 flex items-center gap-1">
+                              <span className="text-gray-600 flex items-center gap-1">
                                 <Users className="w-3 h-3" />
                                 {slot.faculty}
                               </span>
                             )}
                             {slot.room && (
-                              <span className="text-sm text-gray-600 flex items-center gap-1">
+                              <span className="text-gray-600 flex items-center gap-1">
                                 <MapPin className="w-3 h-3" />
                                 {slot.room}
                               </span>
@@ -532,9 +511,9 @@ export default function NotificationPage() {
                           </div>
                         ) : (
                           // Free slot
-                          <div className="flex items-center gap-2 text-gray-400">
-                            <AlertCircle className="w-4 h-4" />
-                            <span className="text-sm">No class scheduled • Self Study</span>
+                          <div className="flex items-center gap-2 text-gray-400 text-xs sm:text-sm">
+                            <AlertCircle className="w-3 h-3 sm:w-4 sm:h-4" />
+                            <span>No class scheduled • Self Study</span>
                           </div>
                         )}
                       </div>
@@ -543,60 +522,60 @@ export default function NotificationPage() {
                 </div>
               </div>
             ) : (
-              <div className="flex flex-col items-center justify-center py-16 bg-white rounded-2xl shadow-xl">
-                <AlertCircle className="w-12 h-12 text-gray-400 mb-4" />
-                <p className="text-gray-500">No timetable available for today</p>
+              <div className="flex flex-col items-center justify-center py-8 sm:py-16 bg-white rounded-xl sm:rounded-2xl shadow-xl">
+                <AlertCircle className="w-8 h-8 sm:w-12 sm:h-12 text-gray-400 mb-3 sm:mb-4" />
+                <p className="text-xs sm:text-sm text-gray-500">No timetable available for today</p>
               </div>
             )}
           </div>
         )}
 
-        {/* Edit Modal */}
+        {/* Edit Modal - Better mobile sizing */}
         {showEditModal && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-4">
-            <div className="bg-white rounded-2xl shadow-2xl max-w-md w-full animate-fadeIn">
-              <div className="p-6 border-b border-gray-100 flex items-center justify-between">
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-3 sm:p-4">
+            <div className="bg-white rounded-xl sm:rounded-2xl shadow-2xl w-full max-w-md mx-auto animate-fadeIn">
+              <div className="p-4 sm:p-6 border-b border-gray-100 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Edit2 className="w-5 h-5 text-blue-600" />
-                  <h3 className="text-lg font-semibold text-gray-800">Edit Subscription</h3>
+                  <Edit2 className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
+                  <h3 className="text-base sm:text-lg font-semibold text-gray-800">Edit Subscription</h3>
                 </div>
                 <button
                   onClick={() => setShowEditModal(false)}
-                  className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                  className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-lg transition-colors"
                 >
-                  <X className="w-5 h-5 text-gray-500" />
+                  <X className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500" />
                 </button>
               </div>
               
-              <div className="p-6 space-y-4">
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-600">Course</label>
+              <div className="p-4 sm:p-6 space-y-3 sm:space-y-4">
+                <div className="space-y-1 sm:space-y-2">
+                  <label className="text-xs sm:text-sm font-medium text-gray-600">Course</label>
                   <select
                     value={editCourse}
                     onChange={(e) => setEditCourse(e.target.value)}
-                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                    className="w-full rounded-lg sm:rounded-xl border border-gray-200 px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                   >
                     <option>B.Tech</option>
                   </select>
                 </div>
                 
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-600">Branch</label>
+                <div className="space-y-1 sm:space-y-2">
+                  <label className="text-xs sm:text-sm font-medium text-gray-600">Branch</label>
                   <select
                     value={editBranch}
                     onChange={(e) => setEditBranch(e.target.value)}
-                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                    className="w-full rounded-lg sm:rounded-xl border border-gray-200 px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                   >
                     <option>CSE-AIML</option>
                   </select>
                 </div>
                 
-                <div className="space-y-2">
-                  <label className="text-sm font-medium text-gray-600">Division</label>
+                <div className="space-y-1 sm:space-y-2">
+                  <label className="text-xs sm:text-sm font-medium text-gray-600">Division</label>
                   <select
                     value={editDivision}
                     onChange={(e) => setEditDivision(e.target.value)}
-                    className="w-full rounded-xl border border-gray-200 px-4 py-3 text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+                    className="w-full rounded-lg sm:rounded-xl border border-gray-200 px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                   >
                     <option value="">Select division</option>
                     {divisions.map((d) => (
@@ -606,27 +585,27 @@ export default function NotificationPage() {
                 </div>
               </div>
               
-              <div className="p-6 border-t border-gray-100 flex gap-3">
+              <div className="p-4 sm:p-6 border-t border-gray-100 flex gap-2 sm:gap-3">
                 <button
                   onClick={() => setShowEditModal(false)}
-                  className="flex-1 px-4 py-3 border border-gray-200 rounded-xl text-gray-700 font-medium hover:bg-gray-50 transition-colors"
+                  className="flex-1 px-3 sm:px-4 py-2 sm:py-3 border border-gray-200 rounded-lg sm:rounded-xl text-xs sm:text-sm text-gray-700 font-medium hover:bg-gray-50 transition-colors"
                 >
                   Cancel
                 </button>
                 <button
                   onClick={handleEdit}
                   disabled={editLoading || !editDivision}
-                  className="flex-1 px-4 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl text-white font-medium hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="flex-1 px-3 sm:px-4 py-2 sm:py-3 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg sm:rounded-xl text-xs sm:text-sm text-white font-medium hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                 >
                   {editLoading ? (
                     <>
-                      <Loader2 className="animate-spin w-4 h-4" />
+                      <Loader2 className="animate-spin w-3 h-3 sm:w-4 sm:h-4" />
                       <span>Saving...</span>
                     </>
                   ) : (
                     <>
-                      <Save className="w-4 h-4" />
-                      <span>Save Changes</span>
+                      <Save className="w-3 h-3 sm:w-4 sm:h-4" />
+                      <span>Save</span>
                     </>
                   )}
                 </button>
