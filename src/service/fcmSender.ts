@@ -22,10 +22,11 @@ export async function sendFCM(
           Urgency: "high",
         },
         notification: {
-          icon: `${baseUrl}/og-image.png`,
-          image: `${baseUrl}/og-image.png`,
-          badge: `${baseUrl}/og-image.png`,
-          requireInteraction: true,
+          icon: `${baseUrl}/favicon.ico`,
+          badge: `${baseUrl}/favicon.ico`,
+          requireInteraction: true, // 👈 stays until user closes
+          tag: "daily-timetable", // prevents stacking duplicates
+          renotify: true,
         },
         fcmOptions: {
           link: "/", // open homepage

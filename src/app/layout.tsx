@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
-
+import NotificationListener from "@/service/notification";
 
 const inter = Inter({
   subsets: ["latin"],
@@ -90,6 +90,7 @@ export default function RootLayout({
   return (
     <html lang="en" className={inter.variable}>
       <body className="bg-gray-100 font-sans pt-5 md:pt-20 pb-16 md:pb-0 min-h-screen">
+      <NotificationListener />
         <Navbar />
         <main className="max-w-6xl mx-auto px-4">
           {children}
