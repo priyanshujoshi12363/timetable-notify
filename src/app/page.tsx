@@ -65,7 +65,7 @@ export default function NotificationPage() {
   const [editDivision, setEditDivision] = useState("");
   const [editSemester, setEditSemester] = useState(2);
   
-  const divisions = Array.from({ length: 15 }, (_, i) => `2CSE AIML ${i + 1}`);
+  const divisions = Array.from({ length: 30 }, (_, i) => `2CSE AIML ${i + 1}`);
   const semesters = [1, 2];
   
   // Get today's day name
