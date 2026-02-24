@@ -66,7 +66,7 @@ export default function NotificationPage() {
   const [editSemester, setEditSemester] = useState(2);
   
   const divisions = Array.from({ length: 30 }, (_, i) => `2CSE AIML ${i + 1}`);
-  const semesters = [1, 2];
+  const semesters = [2];
   
   // Get today's day name
   const getTodayDay = () => {
