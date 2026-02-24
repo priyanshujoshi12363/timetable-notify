@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { generateFCMToken } from "@/lib/getfcmtoken";
 import { 
   ChevronDown, Bell, BookOpen, GitBranch, Layers, 
@@ -54,6 +54,10 @@ export default function NotificationPage() {
   const [timetable, setTimetable] = useState<TimetableData | null>(null);
   const [subscriptionData, setSubscriptionData] = useState<SubscriptionData | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
+  
+  // Refs for button elements
+  const saveButtonRef = useRef<HTMLButtonElement>(null);
+  const editButtonRef = useRef<HTMLButtonElement>(null);
   
   // Edit form state
   const [editBranch, setEditBranch] = useState("CSE");
@@ -130,19 +134,27 @@ export default function NotificationPage() {
     }
   };
 
-  const handleSave = async () => {
-    if (!division) return;
-
-    setLoading(true);
-
-    const token = await generateFCMToken();
-
-    if (!token) {
-      setLoading(false);
+  const handleSave = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    // Prevent any default behavior and stop propagation
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (!division) {
+      alert("Please select a division");
       return;
     }
 
+    setLoading(true);
+
     try {
+      const token = await generateFCMToken();
+
+      if (!token) {
+        setLoading(false);
+        alert("Notification permission denied. Please enable notifications in your device settings.");
+        return;
+      }
+
       const response = await fetch("/api/register", {
         method: "POST",
         headers: {
@@ -174,16 +186,25 @@ export default function NotificationPage() {
 
         setIsEditing(false);
         setIsSaved(true);
+      } else {
+        alert(data.message || "Failed to save subscription");
       }
     } catch (error) {
       console.error("Error saving subscription:", error);
+      alert("An error occurred while saving. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleEdit = async () => {
-    if (!subscriptionData?._id || !editDivision) return;
+  const handleEdit = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    if (!subscriptionData?._id || !editDivision) {
+      alert("Please select a division");
+      return;
+    }
     
     setEditLoading(true);
     
@@ -228,21 +249,42 @@ export default function NotificationPage() {
         
         // Close modal
         setShowEditModal(false);
+      } else {
+        alert(data.message || "Failed to update subscription");
       }
     } catch (error) {
       console.error("Error editing subscription:", error);
+      alert("An error occurred while updating. Please try again.");
     } finally {
       setEditLoading(false);
     }
   };
 
-  const handleEditClick = () => {
+  const handleEditClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    
     // Populate edit form with current values
     setEditBranch(branch);
     setEditCourse(course);
     setEditDivision(division);
     setEditSemester(semester);
     setShowEditModal(true);
+  };
+
+  const handleModalClose = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setShowEditModal(false);
+  };
+
+  const handleModalOverlayClick = (e: React.MouseEvent) => {
+    // Close modal when clicking overlay
+    if (e.target === e.currentTarget) {
+      e.preventDefault();
+      e.stopPropagation();
+      setShowEditModal(false);
+    }
   };
 
   const formatTime = (time: string) => {
@@ -338,7 +380,7 @@ export default function NotificationPage() {
                     >
                       <option>CSE</option>
                     </select>
-                    <ChevronDown className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
+                    <ChevronDown className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400 pointer-events-none" />
                   </div>
                 </div>
 
@@ -360,7 +402,7 @@ export default function NotificationPage() {
                     >
                       <option>AIML</option>
                     </select>
-                    <ChevronDown className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
+                    <ChevronDown className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400 pointer-events-none" />
                   </div>
                 </div>
               </div>
@@ -388,7 +430,7 @@ export default function NotificationPage() {
                         <option key={div} value={div}>{div}</option>
                       ))}
                     </select>
-                    <ChevronDown className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
+                    <ChevronDown className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400 pointer-events-none" />
                   </div>
                 </div>
 
@@ -412,7 +454,7 @@ export default function NotificationPage() {
                         <option key={sem} value={sem}>Semester {sem}</option>
                       ))}
                     </select>
-                    <ChevronDown className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400" />
+                    <ChevronDown className="absolute right-2 sm:right-3 top-1/2 -translate-y-1/2 w-4 h-4 sm:w-5 sm:h-5 text-gray-400 pointer-events-none" />
                   </div>
                 </div>
               </div>
@@ -421,9 +463,15 @@ export default function NotificationPage() {
               {isEditing && (
                 <div className="pt-2 sm:pt-4">
                   <button
+                    ref={saveButtonRef}
+                    type="button"
                     onClick={handleSave}
                     disabled={loading || !division}
-                    className="group relative w-full overflow-hidden rounded-lg sm:rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base text-white font-semibold shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.02] disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed"
+                    className="group relative w-full overflow-hidden rounded-lg sm:rounded-xl bg-gradient-to-r from-blue-600 to-indigo-600 px-4 sm:px-6 py-3 sm:py-4 text-sm sm:text-base text-white font-semibold shadow-lg transition-all duration-300 hover:shadow-xl hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:hover:scale-100 disabled:cursor-not-allowed touch-manipulation"
+                    style={{ 
+                      WebkitTapHighlightColor: 'transparent',
+                      touchAction: 'manipulation'
+                    }}
                   >
                     <span className="relative z-10 flex items-center justify-center gap-2">
                       {loading ? (
@@ -467,11 +515,17 @@ export default function NotificationPage() {
               
               {/* Edit Button */}
               <button
+                ref={editButtonRef}
+                type="button"
                 onClick={handleEditClick}
-                className="flex items-center justify-center gap-2 px-3 sm:px-4 py-2 sm:py-2 bg-white rounded-lg sm:rounded-xl shadow-md hover:shadow-lg transition-all duration-300 border border-gray-200 hover:border-blue-200 text-sm sm:text-base w-full sm:w-auto"
+                className="flex items-center justify-center gap-2 px-3 sm:px-4 py-2 sm:py-2 bg-white rounded-lg sm:rounded-xl shadow-md hover:shadow-lg transition-all duration-300 border border-gray-200 hover:border-blue-200 text-sm sm:text-base w-full sm:w-auto touch-manipulation"
+                style={{ 
+                  WebkitTapHighlightColor: 'transparent',
+                  touchAction: 'manipulation'
+                }}
               >
-                <Edit2 className="w-3 h-3 sm:w-4 sm:h-4 text-gray-600 group-hover:text-blue-600 transition-colors" />
-                <span className="text-xs sm:text-sm font-medium text-gray-700 group-hover:text-blue-600 transition-colors">
+                <Edit2 className="w-3 h-3 sm:w-4 sm:h-4 text-gray-600" />
+                <span className="text-xs sm:text-sm font-medium text-gray-700">
                   Edit Subscription
                 </span>
               </button>
@@ -572,16 +626,27 @@ export default function NotificationPage() {
 
         {/* Edit Modal */}
         {showEditModal && (
-          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-3 sm:p-4">
-            <div className="bg-white rounded-xl sm:rounded-2xl shadow-2xl w-full max-w-md mx-auto animate-fadeIn">
+          <div 
+            className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-3 sm:p-4"
+            onClick={handleModalOverlayClick}
+          >
+            <div 
+              className="bg-white rounded-xl sm:rounded-2xl shadow-2xl w-full max-w-md mx-auto"
+              onClick={(e) => e.stopPropagation()}
+            >
               <div className="p-4 sm:p-6 border-b border-gray-100 flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Edit2 className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
                   <h3 className="text-base sm:text-lg font-semibold text-gray-800">Edit Subscription</h3>
                 </div>
                 <button
-                  onClick={() => setShowEditModal(false)}
-                  className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-lg transition-colors"
+                  type="button"
+                  onClick={handleModalClose}
+                  className="p-1.5 sm:p-2 hover:bg-gray-100 rounded-lg transition-colors touch-manipulation"
+                  style={{ 
+                    WebkitTapHighlightColor: 'transparent',
+                    touchAction: 'manipulation'
+                  }}
                 >
                   <X className="w-4 h-4 sm:w-5 sm:h-5 text-gray-500" />
                 </button>
@@ -644,15 +709,25 @@ export default function NotificationPage() {
               
               <div className="p-4 sm:p-6 border-t border-gray-100 flex gap-2 sm:gap-3">
                 <button
-                  onClick={() => setShowEditModal(false)}
-                  className="flex-1 px-3 sm:px-4 py-2 sm:py-3 border border-gray-200 rounded-lg sm:rounded-xl text-xs sm:text-sm text-gray-700 font-medium hover:bg-gray-50 transition-colors"
+                  type="button"
+                  onClick={handleModalClose}
+                  className="flex-1 px-3 sm:px-4 py-2 sm:py-3 border border-gray-200 rounded-lg sm:rounded-xl text-xs sm:text-sm text-gray-700 font-medium hover:bg-gray-50 transition-colors touch-manipulation"
+                  style={{ 
+                    WebkitTapHighlightColor: 'transparent',
+                    touchAction: 'manipulation'
+                  }}
                 >
                   Cancel
                 </button>
                 <button
+                  type="button"
                   onClick={handleEdit}
                   disabled={editLoading || !editDivision}
-                  className="flex-1 px-3 sm:px-4 py-2 sm:py-3 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg sm:rounded-xl text-xs sm:text-sm text-white font-medium hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                  className="flex-1 px-3 sm:px-4 py-2 sm:py-3 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-lg sm:rounded-xl text-xs sm:text-sm text-white font-medium hover:shadow-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 touch-manipulation"
+                  style={{ 
+                    WebkitTapHighlightColor: 'transparent',
+                    touchAction: 'manipulation'
+                  }}
                 >
                   {editLoading ? (
                     <>
