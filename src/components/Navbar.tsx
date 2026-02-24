@@ -26,7 +26,7 @@ const navItems = [
     href: "/attandance",
     icon: HomeIcon,
     activeIcon: HomeSolid,
-    locked: true, // Add locked property
+    locked: true,
   }
 ];
 
@@ -42,18 +42,15 @@ export default function Navbar() {
 
   return (
     <>
-      {/* Desktop Navbar */}
       <div className="hidden md:flex fixed top-0 left-0 w-full bg-white shadow-sm z-50">
         <div className="max-w-6xl mx-auto flex justify-between items-center px-6 py-4 w-full">
           <h1 className="text-xl font-semibold text-gray-800">
-           Timely
+          Timely
           </h1>
-
           <div className="flex gap-8">
             {navItems.map((item) => {
               const isActive = pathname === item.href;
               const Icon = isActive ? item.activeIcon : item.icon;
-
               return (
                 <Link
                   key={item.name}
@@ -78,14 +75,11 @@ export default function Navbar() {
           </div>
         </div>
       </div>
-
-      {/* Mobile Bottom Navbar */}
       <div className="md:hidden fixed bottom-0 left-0 w-full bg-white border-t shadow-inner z-50">
         <div className="flex justify-around items-center py-3">
           {navItems.map((item) => {
             const isActive = pathname === item.href;
             const Icon = isActive ? item.activeIcon : item.icon;
-
             return (
               <Link
                 key={item.name}
