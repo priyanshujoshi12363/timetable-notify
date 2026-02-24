@@ -11,17 +11,30 @@ firebase.initializeApp({
 
 const messaging = firebase.messaging();
 
+// 🔥 THIS PART IS THE KEY
 messaging.onBackgroundMessage(function (payload) {
   console.log("Received background message:", payload);
 
-  self.registration.showNotification(
-    payload.notification.title,
-    {
-      body: payload.notification.body,
-      icon: "/og-image.png",
-      data: {
-        link: payload.fcmOptions?.link || "/",
-      },
-    }
+  const notificationTitle = payload.notification?.title || "New Notification";
+
+  const notificationOptions = {
+    body: payload.notification?.body,
+    icon: payload.notification?.icon || "/og-image.png",
+    image: payload.notification?.image,
+    data: {
+      link: payload.fcmOptions?.link || "/",
+    },
+  };
+
+  self.registration.showNotification(notificationTitle, notificationOptions);
+});
+
+self.addEventListener("notificationclick", function (event) {
+  event.notification.close();
+
+  const link = event.notification.data?.link || "/";
+
+  event.waitUntil(
+    clients.openWindow(link)
   );
 });
