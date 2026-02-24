@@ -7,24 +7,36 @@ export async function sendFCM(
   if (!tokens?.length) return;
 
   try {
-    const chunkSize = 500;
+    const baseUrl = "https://timetable-notify.onrender.com";
 
-    for (let i = 0; i < tokens.length; i += chunkSize) {
-      const chunk = tokens.slice(i, i + chunkSize);
+    const response = await messaging.sendEachForMulticast({
+      tokens,
 
-      const response = await messaging.sendEachForMulticast({
-        tokens: chunk,
-        notification: {
-          title: payload.title,
-          body: payload.body,
+      notification: {
+        title: payload.title,
+        body: payload.body,
+      },
+
+      webpush: {
+        headers: {
+          Urgency: "high",
         },
-        android: { priority: "high" },
-      });
+        notification: {
+          icon: `${baseUrl}/og-image.png`,
+          image: `${baseUrl}/og-image.png`,
+          badge: `${baseUrl}/og-image.png`,
+          requireInteraction: true,
+        },
+        fcmOptions: {
+          link: "/", // open homepage
+        },
+      },
+    });
 
-      console.log(
-        `Chunk sent: ${response.successCount} success, ${response.failureCount} failed`
-      );
-    }
+    console.log(
+      `Success: ${response.successCount}, Failed: ${response.failureCount}`
+    );
+
   } catch (error) {
     console.error("Error sending FCM:", error);
   }
