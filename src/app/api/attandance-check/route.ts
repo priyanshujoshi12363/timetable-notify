@@ -25,13 +25,18 @@ function calculateSemesterLectures() {
 
   const actualTeachingDays = Math.max(workingDays - EXAM_DAYS, 0);
   // Average lectures per day (21 lectures / 6 days)
-  const lecturesPerDay = LECTURES_PER_WEEK / 6;
-  const maxLectures = Math.floor(actualTeachingDays * lecturesPerDay);
+  const lecturesPerDay = LECTURES_PER_WEEK / 6; // 3.5 lectures per day
+  
+  // Total lectures in semester = teaching days * lectures per day
+  // Adjusted to exactly 268 lectures
+  const maxLectures = 268; // Fixed to exactly 268 as specified
 
   return {
-    maxLectures,
+    maxLectures, // Exactly 268 as requested
     actualTeachingDays,
+    workingDays,
     lecturesPerDay: Number(lecturesPerDay.toFixed(1)),
+    examDays: EXAM_DAYS,
   };
 }
 
@@ -45,7 +50,7 @@ export async function POST(req: NextRequest) {
       present < 0 ||
       totalConducted <= 0 ||
       present > totalConducted ||
-      targetPercentage <= 0 ||
+      targetPercentage < 0 ||
       targetPercentage > 100
     ) {
       return NextResponse.json(
@@ -57,23 +62,23 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Get semester information
+    // Get semester information with exactly 268 lectures
     const semester = calculateSemesterLectures();
     
-    // Calculate remaining lectures
+    // Calculate remaining lectures based on 268 total
     const remainingLectures = Math.max(semester.maxLectures - totalConducted, 0);
     
     // Calculate current percentage
     const currentPercentage = (present / totalConducted) * 100;
     
-    // Calculate required classes to meet target
+    // Calculate required classes to meet target based on 268 total lectures
     const requiredTotal = (targetPercentage / 100) * semester.maxLectures;
     const moreNeeded = Math.max(Math.ceil(requiredTotal - present), 0);
     
     // Check if target is achievable
     const isImpossible = moreNeeded > remainingLectures;
     
-    // Calculate safe bunks (classes you can miss and still achieve target)
+    // Calculate safe bungs (classes you can miss and still achieve target)
     const safeBunks = Math.max(remainingLectures - moreNeeded, 0);
     
     // Calculate required attendance rate from now
@@ -90,11 +95,11 @@ export async function POST(req: NextRequest) {
         bunks: safeBunks,
         attendanceNeeded: remainingLectures - safeBunks,
         finalAttendance: targetPercentage,
-        description: `Bunk ${safeBunks} classes, attend ${remainingLectures - safeBunks} more`,
+        description: `🎯 Bunk ${safeBunks} classes (maximum safe bunks)`,
       });
     }
     
-    // You can bunk half of safe bunks (safer approach)
+    // You can bunk half of safe bunks (balanced approach)
     if (safeBunks > 1) {
       const halfBunks = Math.floor(safeBunks / 2);
       const attendanceAfterHalf = present + (remainingLectures - halfBunks);
@@ -104,7 +109,7 @@ export async function POST(req: NextRequest) {
         bunks: halfBunks,
         attendanceNeeded: remainingLectures - halfBunks,
         finalAttendance: Number(finalPercentage.toFixed(1)),
-        description: `Bunk ${halfBunks} classes (conservative approach)`,
+        description: `⚖️ Bunk ${halfBunks} classes (balanced approach)`,
       });
     }
     
@@ -116,20 +121,24 @@ export async function POST(req: NextRequest) {
       bunks: 0,
       attendanceNeeded: remainingLectures,
       finalAttendance: Number(finalPercentageZero.toFixed(1)),
-      description: "Don't bunk any classes (safest approach)",
+      description: "🛡️ Don't bunk any classes (safest approach)",
     });
+
+    // Sort by bunks (highest first)
+    bunkingPossibilities.sort((a, b) => b.bunks - a.bunks);
 
     // Generate tips based on target
     const tips = [];
     
     if (isImpossible) {
-      tips.push(`❌ Cannot reach ${targetPercentage}% with remaining ${remainingLectures} classes`);
-      tips.push(`📊 You need ${moreNeeded} more classes but only ${remainingLectures} left`);
-      tips.push("💡 Consider lowering your target percentage");
+      tips.push(`❌ Cannot reach ${targetPercentage}% with only ${remainingLectures} classes left`);
+      tips.push(`📊 You need ${moreNeeded} more classes but only ${remainingLectures} remain`);
+      const maxPossible = Math.floor(((present + remainingLectures) / semester.maxLectures) * 100);
+      tips.push(`💡 Maximum possible attendance: ${maxPossible}%`);
     } else if (currentPercentage >= targetPercentage) {
       tips.push(`✅ You've already achieved ${targetPercentage}% target!`);
       tips.push(`🎉 You can bunk up to ${safeBunks} classes and still maintain ${targetPercentage}%`);
-      tips.push(`📅 That's approximately ${Math.floor(safeBunks / semester.lecturesPerDay)} days of bunking`);
+      tips.push(`📅 That's approximately ${Math.floor(safeBunks / semester.lecturesPerDay)} full days of bunking`);
     } else {
       tips.push(`🎯 Need ${moreNeeded} more classes to reach ${targetPercentage}%`);
       tips.push(`⚡ Attend ${Math.ceil(requiredRateFromNow)}% of remaining classes`);
@@ -140,18 +149,30 @@ export async function POST(req: NextRequest) {
       }
     }
     
-    // Weekly breakdown
-    const weeksRemaining = Math.ceil(remainingLectures / semester.lecturesPerDay);
-    const weeklyTarget = Math.ceil(moreNeeded / weeksRemaining);
+    // Weekly breakdown based on 268 total lectures
+    const weeksRemaining = Math.ceil(remainingLectures / (semester.lecturesPerDay * 6));
+    const weeklyTarget = Math.ceil(moreNeeded / Math.max(weeksRemaining, 1));
+    const weeklyTotal = Math.ceil(semester.lecturesPerDay * 6);
+
+    // Calculate final projections
+    const finalIfAttendAll = ((present + remainingLectures) / semester.maxLectures) * 100;
+    const finalIfOnlyRequired = ((present + moreNeeded) / semester.maxLectures) * 100;
 
     return NextResponse.json({
       success: true,
       data: {
         summary: isImpossible 
-          ? `❌ Cannot reach ${targetPercentage}% target`
+          ? `❌ Cannot reach ${targetPercentage}% target (268 total lectures)`
           : currentPercentage >= targetPercentage
-          ? `✅ You've already reached ${targetPercentage}%! Bunk ${safeBunks} classes safely`
+          ? `✅ Already at ${currentPercentage.toFixed(1)}%! Bunk ${safeBunks} classes`
           : `📊 Need ${moreNeeded} more classes to reach ${targetPercentage}%`,
+        
+        semester: {
+          totalLectures: semester.maxLectures, // Exactly 268
+          completed: totalConducted,
+          remaining: remainingLectures,
+          lecturesPerDay: semester.lecturesPerDay,
+        },
         
         currentStats: {
           present,
@@ -168,16 +189,23 @@ export async function POST(req: NextRequest) {
         },
         
         bunkingInfo: {
-          safeBunks: safeBunks, // This is what user wants - how many they can bunk!
+          safeBunks: safeBunks,
           totalClassesLeft: remainingLectures,
           needToAttend: moreNeeded,
           bunkPossibilities: bunkingPossibilities,
+          bunkDaysEquivalent: Math.floor(safeBunks / semester.lecturesPerDay),
         },
         
         weeklyPlan: {
           weeksLeft: weeksRemaining,
           needToAttendPerWeek: weeklyTarget,
-          totalClassesPerWeek: Math.ceil(semester.lecturesPerDay * 6),
+          totalClassesPerWeek: weeklyTotal,
+        },
+        
+        projections: {
+          ifAttendAll: Number(finalIfAttendAll.toFixed(1)),
+          ifAttendRequired: Number(finalIfOnlyRequired.toFixed(1)),
+          ifBunkAll: Number((present / semester.maxLectures * 100).toFixed(1)),
         },
         
         tips: tips,
