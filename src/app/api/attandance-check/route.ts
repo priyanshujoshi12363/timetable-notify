@@ -29,7 +29,7 @@ function calculateSemesterLectures() {
   
   // Total lectures in semester = teaching days * lectures per day
   // Adjusted to exactly 268 lectures
-  const maxLectures = 268; // Fixed to exactly 268 as specified
+  const maxLectures = 320; // Fixed to exactly 268 as specified
 
   return {
     maxLectures, // Exactly 268 as requested
