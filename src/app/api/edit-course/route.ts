@@ -43,7 +43,7 @@ export async function POST(request: NextRequest) {
         course,
         division,
         semester,
-        academicYear, // force correct academic year
+        academicYear, 
       },
       {
         returnDocument: "after",

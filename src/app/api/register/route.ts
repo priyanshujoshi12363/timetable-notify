@@ -6,68 +6,91 @@ export async function POST(req: Request) {
   try {
     await connectDB();
 
-    const body = await req.json();
-
     const {
       branch,
       course,
       division,
       semester,
       fcmToken,
-    } = body;
+      expoToken,
+    } = await req.json();
 
-    // 🔥 Default academic year
     const academicYear = "2024-2025";
 
-    // ✅ Validation
-    if (
-      !branch ||
-      !course ||
-      !division ||
-      !semester ||
-      !fcmToken
-    ) {
+    // ✅ Basic validation
+    if (!branch || !course || !division || !semester) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "All fields are required",
-        },
+        { success: false, message: "Missing required fields" },
+        { status: 400 }
+      );
+    }
+
+    if (!fcmToken && !expoToken) {
+      return NextResponse.json(
+        { success: false, message: "At least one token is required" },
         { status: 400 }
       );
     }
 
     if (typeof semester !== "number") {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Semester must be a number",
-        },
+        { success: false, message: "Semester must be a number" },
         { status: 400 }
       );
     }
 
-    if (typeof fcmToken !== "string" || fcmToken.length < 20) {
+    if (fcmToken && (typeof fcmToken !== "string" || fcmToken.length < 20)) {
       return NextResponse.json(
-        {
-          success: false,
-          message: "Invalid FCM token",
-        },
+        { success: false, message: "Invalid FCM token" },
         { status: 400 }
       );
     }
 
-    // ✅ Upsert device
-    const device = await UserDevice.findOneAndUpdate(
-      { fcmToken },
-      {
+    if (expoToken && !expoToken.startsWith("ExponentPushToken")) {
+      return NextResponse.json(
+        { success: false, message: "Invalid Expo token" },
+        { status: 400 }
+      );
+    }
+
+    // 🔥 Build dynamic search query
+    const searchConditions: any[] = [];
+
+    if (fcmToken) searchConditions.push({ fcmToken });
+    if (expoToken) searchConditions.push({ expoToken });
+
+    let device = null;
+
+    if (searchConditions.length > 0) {
+      device = await UserDevice.findOne({
+        $or: searchConditions,
+      });
+    }
+
+    if (device) {
+      // ✅ Update existing device
+      device.branch = branch;
+      device.course = course;
+      device.division = division;
+      device.semester = semester;
+      device.academicYear = academicYear;
+
+      if (fcmToken) device.fcmToken = fcmToken;
+      if (expoToken) device.expoToken = expoToken;
+
+      await device.save();
+    } else {
+      // ✅ Create new device
+      device = await UserDevice.create({
         branch,
         course,
         division,
         semester,
-        academicYear, // auto set
-      },
-      { upsert: true, new: true }
-    );
+        academicYear,
+        fcmToken: fcmToken || undefined,
+        expoToken: expoToken || undefined,
+      });
+    }
 
     return NextResponse.json(
       {
@@ -79,12 +102,12 @@ export async function POST(req: Request) {
     );
 
   } catch (error: any) {
-    console.error("FULL ERROR:", error);
+    console.error("ERROR:", error);
 
     return NextResponse.json(
       {
         success: false,
-        message: error.message,
+        message: error.message || "Internal Server Error",
       },
       { status: 500 }
     );

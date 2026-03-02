@@ -8,7 +8,7 @@ export interface IUserDevice extends Document {
   academicYear: string;
 
   fcmToken: string;
-
+  expoToken:string;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -40,8 +40,10 @@ const UserDeviceSchema: Schema<IUserDevice> = new Schema(
     },
     fcmToken: {
       type: String,
-      required: true,
       unique: true,
+    }, 
+    expoToken: {
+      type: String,   
     },
   },
   { timestamps: true }

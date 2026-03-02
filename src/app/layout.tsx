@@ -12,27 +12,35 @@ const inter = Inter({
 
 export const metadata: Metadata = {
   title: {
-    default: "Timely – Smart Student Attendance & Timetable App",
-    template: "%s | Timely",
+    default: "Classes Compass",
+    template: "%s | Classes Compass",
   },
+
   description:
-    "Timely is a smart student portal that helps you track attendance, view daily timetables, and receive automatic class notifications. Stay organized and never miss a lecture.",
+    "Classes Compass is a smart student portal designed to help you track attendance, view daily timetables, and receive automatic class notifications. Stay organized, focused, and never miss a lecture.",
 
   keywords: [
-    "Timely App",
-    "Student Attendance Tracker",
-    "College Timetable App",
-    "Student Dashboard",
+    "Classes Compass",
+    "Student Timetable App",
+    "Attendance Tracker for Students",
+    "College Timetable Manager",
     "Class Reminder App",
     "Attendance Management System",
-    "College Notification App",
-    "Academic Planner",
-    "Student Productivity App",
+    "Student Notification App",
+    "Academic Planner for Students",
+    "College Productivity App",
+    "Smart Student Dashboard",
   ],
 
-  authors: [{ name: "Priyanshu Joshi", url: "https://timetable-notify.onrender.com" }],
+  authors: [
+    {
+      name: "Priyanshu Joshi",
+      url: "https://timetable-notify.onrender.com",
+    },
+  ],
+
   creator: "Priyanshu Joshi",
-  publisher: "Timely",
+  publisher: "Classes Compass",
 
   metadataBase: new URL("https://timetable-notify.onrender.com"),
 
@@ -53,35 +61,34 @@ export const metadata: Metadata = {
   },
 
   openGraph: {
-    title: "Timely – Smart Student Attendance & Timetable App",
+    title: "Classes Compass – Smart Student Timetable & Attendance App",
     description:
-      "Track attendance, manage your timetable, and receive smart class notifications automatically with Timely.",
+      "Track attendance, manage your timetable, and receive smart class notifications automatically with Classes Compass.",
     url: "https://timetable-notify.onrender.com",
-    siteName: "Timely",
+    siteName: "Classes Compass",
     locale: "en_US",
     type: "website",
     images: [
       {
-        url: "/og-image.png", // Add this file in /public
+        url: "/og-image.png",
         width: 1200,
         height: 630,
-        alt: "Timely Student Dashboard Preview",
+        alt: "Classes Compass Student Dashboard Preview",
       },
     ],
   },
 
   twitter: {
     card: "summary_large_image",
-    title: "Timely – Student Attendance & Timetable App",
+    title: "Classes Compass – Student Timetable & Attendance App",
     description:
-      "Smart attendance tracking and class notifications for students.",
+      "Smart attendance tracking and automated class notifications for students.",
     images: ["/og-image.png"],
     creator: "@yourtwitterhandle",
   },
 
   category: "education",
 };
-
 export default function RootLayout({
   children,
 }: {

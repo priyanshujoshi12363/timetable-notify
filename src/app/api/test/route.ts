@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { messaging } from "@/lib/firebaseAdmin";
 export async function GET() {
   try {
-    const token = "cemqOPy-kbnNSLmVdonhI1:APA91bEJqnAAYE4TEnoxdGVAhoUUcqLZN_soXNZ3tjlBmlDmVRC5OZOWfE-WdeBuCOpGtLFYwGaFMJHo7BR4Fm3nrAucvIib0aHpc_QwYcwjPiW_o_n-g20";
+    const token = "cXAnYHyTEVLE4LkuRtFD7-:APA91bGuDaJQITI5651qysgCaTe5Z479EfXOiny1yLhWmy_LaQif9wQAsItHzXefOmSxnFApklRwnMi2uuSB49O-jPNVAD4IeDz83R1lxCcgeYfAwFDqqUU";
 
     const response = await messaging.send({
       token,

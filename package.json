@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@heroicons/react": "^2.2.0",
+    "expo-server-sdk": "^6.0.0",
     "firebase": "^12.9.0",
     "firebase-admin": "^13.6.1",
     "heroicons": "^2.2.0",
