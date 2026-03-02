@@ -8,7 +8,8 @@ import {
   MapPin, Users, Loader2, AlertCircle, Sun,
   X, Save, GraduationCap, Coffee, BookMarked, PartyPopper,
   ChevronLeft, ChevronRight as ChevronRightIcon,
-  Moon, Sparkles, School, CalendarDays, Database, Zap
+  Moon, Sparkles, School, CalendarDays, Database, Zap,
+  Trash2
 } from "lucide-react";
 
 interface TimetableSlot {
@@ -66,6 +67,7 @@ export default function NotificationPage() {
   const [isEditing, setIsEditing] = useState(true);
   const [loading, setLoading] = useState(false);
   const [editLoading, setEditLoading] = useState(false);
+  const [deleteLoading, setDeleteLoading] = useState(false);
   const [timetableLoading, setTimetableLoading] = useState(false);
   const [timetableError, setTimetableError] = useState<string | null>(null);
   const [isSaved, setIsSaved] = useState(false);
@@ -150,6 +152,30 @@ export default function NotificationPage() {
       console.log("🗑️ Cleared cache for division:", div);
     } catch (error) {
       console.error("Error clearing cache:", error);
+    }
+  };
+
+  // Clear ALL data (for delete account)
+  const clearAllData = () => {
+    try {
+      // Clear all localStorage
+      localStorage.clear();
+      
+      // Reset all state
+      setDivision("");
+      setSemester(2);
+      setEditDivision("");
+      setEditSemester(2);
+      setSubscriptionData(null);
+      setTimetable(null);
+      setCachedDays(new Set());
+      setIsSaved(false);
+      setIsEditing(true);
+      setSelectedDay("");
+      
+      console.log("🗑️ All data cleared from localStorage");
+    } catch (error) {
+      console.error("Error clearing all data:", error);
     }
   };
 
@@ -276,6 +302,52 @@ export default function NotificationPage() {
   // Refresh a specific day (force fetch from API)
   const handleRefreshDay = (day: string) => {
     fetchTimetableForDay(division, day, true);
+  };
+
+  // Handle delete account
+  const handleDeleteAccount = async () => {
+    if (!subscriptionData?._id) {
+      // If no subscription data, just clear local storage
+      clearAllData();
+      alert("Local data cleared successfully!");
+      return;
+    }
+
+    if (!confirm("Are you sure you want to delete your account? This will permanently remove your data from the server and clear all local data. This action cannot be undone.")) {
+      return;
+    }
+
+    setDeleteLoading(true);
+
+    try {
+      console.log("🗑️ Deleting account with ID:", subscriptionData._id);
+      
+      const response = await fetch(`/api/delete?userId=${subscriptionData._id}`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+
+      // Clear all local data regardless of response
+      clearAllData();
+      
+      if (response.ok) {
+        const data = await response.json();
+        alert(data.message || "Account deleted successfully!");
+      } else {
+        // Still show success since we cleared local data
+        alert("Local data cleared. Note: Server deletion may have failed.");
+      }
+      
+    } catch (error) {
+      console.error("Error deleting account:", error);
+      // Still clear local data
+      clearAllData();
+      alert("Local data cleared. Network error occurred while deleting from server.");
+    } finally {
+      setDeleteLoading(false);
+    }
   };
 
   const handleSave = async (e: React.MouseEvent<HTMLButtonElement>) => {
@@ -513,7 +585,7 @@ export default function NotificationPage() {
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 py-4 px-3 sm:py-8 sm:px-6 lg:px-8">
       <div className="max-w-4xl mx-auto space-y-4 sm:space-y-8">
         
-        {/* Header */}
+        {/* Header with Delete Button */}
         <div className="flex justify-between items-center backdrop-blur-sm bg-white/30 p-4 sm:p-6 rounded-xl sm:rounded-2xl shadow-lg border border-white/20">
           <div className="flex items-center gap-2 sm:gap-3">
             <div className="p-2 sm:p-3 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg sm:rounded-xl shadow-lg">
@@ -528,9 +600,28 @@ export default function NotificationPage() {
               </p>
             </div>
           </div>
+          
+          {/* Delete Account Button */}
+          <button
+            onClick={handleDeleteAccount}
+            disabled={deleteLoading}
+            className="p-2 sm:p-3 bg-red-500 hover:bg-red-600 rounded-lg sm:rounded-xl shadow-lg transition-all duration-300 hover:scale-105 disabled:opacity-50 disabled:hover:scale-100 group relative"
+            title="Delete Account"
+          >
+            {deleteLoading ? (
+              <Loader2 className="w-5 h-5 sm:w-6 sm:h-6 text-white animate-spin" />
+            ) : (
+              <Trash2 className="w-5 h-5 sm:w-6 sm:h-6 text-white" />
+            )}
+            
+            {/* Tooltip */}
+            <span className="absolute -bottom-8 right-0 text-xs bg-gray-800 text-white px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+              Delete Account
+            </span>
+          </button>
         </div>
 
-        {/* Subscription Card - UNCHANGED */}
+        {/* Subscription Card */}
         <div className="relative overflow-hidden rounded-xl sm:rounded-2xl bg-white shadow-xl border border-gray-100">
           <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-blue-600 via-indigo-600 to-purple-600"></div>
           
@@ -540,6 +631,13 @@ export default function NotificationPage() {
                 <Layers className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600" />
                 <h2 className="text-base sm:text-lg font-semibold text-gray-800">Subscription Details</h2>
               </div>
+              
+              {/* Show User ID if exists */}
+              {subscriptionData && (
+                <span className="text-xs text-gray-400">
+                  ID: {subscriptionData._id.substring(0, 8)}...
+                </span>
+              )}
             </div>
 
             <div className="space-y-4 sm:space-y-6">
@@ -642,7 +740,7 @@ export default function NotificationPage() {
                 </div>
               </div>
 
-              {/* Save button - UNCHANGED */}
+              {/* Save button */}
               {isEditing && (
                 <div className="pt-2 sm:pt-4">
                   <button
@@ -699,8 +797,6 @@ export default function NotificationPage() {
               </div>
               
               <div className="flex items-center gap-2">
-        
-
                 <button
                   type="button"
                   onClick={handleEditClick}
@@ -885,7 +981,6 @@ export default function NotificationPage() {
 
                         <div className="p-3 sm:p-4">
                           {hasBatches ? (
-                        
                             <div className="space-y-2 sm:space-y-3">
                               {slot.batches.map((batch, idx) => (
                                 <div key={idx} className="flex flex-wrap items-center gap-2 sm:gap-4 p-2 sm:p-3 bg-purple-100/70 rounded-lg text-xs sm:text-sm border border-purple-200">
@@ -984,6 +1079,8 @@ export default function NotificationPage() {
             )}
           </div>
         )}
+        
+        {/* Edit Modal */}
         {showEditModal && (
           <div 
             className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50 p-3 sm:p-4"

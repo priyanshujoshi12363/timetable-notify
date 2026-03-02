@@ -37,13 +37,18 @@ export async function POST(req: Request) {
     console.log("📅 Today:", today);
     console.log("📌 Type:", type);
 
-    const quote = getRandomQuote();
-
     const timetables = await Timetable.find({
+      division: "2CSE AIML 30"
     });
 
-    for (const timetable of timetables) {
+    if (!timetables.length) {
+      console.log("⚠️ No timetables found");
+      return NextResponse.json({ success: true, message: "No timetable found" });
+    }
 
+    const quote = getRandomQuote();
+
+    for (const timetable of timetables) {
 
       const schedule = timetable.schedule.find(
         (d: any) => d.day.toLowerCase() === today.toLowerCase()
@@ -55,56 +60,66 @@ export async function POST(req: Request) {
         course: timetable.course,
         semester: timetable.semester,
         academicYear: timetable.academicYear,
-      });
+      }).lean();;
 
-      if (!users.length) continue;
+
+      if (!users.length) {
+        console.log("⚠️ No users found for division:", timetable.division);
+        continue;
+      }
 
       const expoTokens: string[] = [];
       const fcmTokens: string[] = [];
 
       users.forEach((user: any) => {
         if (user.expoToken) expoTokens.push(user.expoToken);
-        else if (user.fcmToken) fcmTokens.push(user.fcmToken);
+        if (user.fcmToken) fcmTokens.push(user.fcmToken);
       });
 
-      // No schedule found for today
+      console.log("👥 Users:", users.length);
+      console.log("📲 Expo Tokens:", expoTokens.length);
+      console.log("📲 FCM Tokens:", fcmTokens.length);
+
+      // ===== NO CLASS TODAY =====
       if (!schedule) {
-        const noClassMessage = `✨ ${quote}\n\n😌 Today is ${today}. No classes scheduled.\nRecharge yourself and come back stronger 💪`;
+        const body = `✨ ${quote}\n\n😌 Today is ${today}. No classes scheduled.\nRecharge yourself and come back stronger 💪`;
+
+        const payload = {
+          title: "🎉 No Classes Today!",
+          body,
+        };
 
         if (expoTokens.length) {
-          await sendExpoPush(expoTokens, {
-            title: "🎉 No Classes Today!",
-            body: noClassMessage,
-          });
-        } else if (fcmTokens.length) {
-          await sendFCM(fcmTokens, {
-            title: "🎉 No Classes Today!",
-            body: noClassMessage,
-          });
+          await sendExpoPush(expoTokens, payload);
         }
+
+        if (fcmTokens.length) {
+          await sendFCM(fcmTokens, payload);
+        }
+
         continue;
       }
 
-      // Filter slots based on type
+      // ===== FILTER SLOTS =====
       let filteredSlots = schedule.slots;
 
-      if (type === "morning") {
+      const timeGroups: any = {
+        morning: ["09:30-10:25", "10:25-11:20"],
+        afternoon: ["12:20-01:15", "01:15-02:10"],
+        evening: ["02:30-03:25", "03:25-04:20"],
+      };
+
+      if (type !== "today" && timeGroups[type]) {
         filteredSlots = schedule.slots.filter((slot: any) =>
-          ["09:30-10:25", "10:25-11:20"].includes(slot.time)
-        );
-      } else if (type === "afternoon") {
-        filteredSlots = schedule.slots.filter((slot: any) =>
-          ["12:20-01:15", "01:15-02:10"].includes(slot.time)
-        );
-      } else if (type === "evening") {
-        filteredSlots = schedule.slots.filter((slot: any) =>
-          ["02:30-03:25", "03:25-04:20"].includes(slot.time)
+          timeGroups[type].includes(slot.time)
         );
       }
 
-      if (!filteredSlots.length) continue;
+      if (!filteredSlots.length) {
+        console.log("⚠️ No matching slots for type:", type);
+        continue;
+      }
 
-      // Format slot messages
       const slotMessage = filteredSlots
         .map((slot: any) => {
           if (slot.subject) {
@@ -120,29 +135,27 @@ export async function POST(req: Request) {
         .filter(Boolean)
         .join("\n");
 
-      const finalNotificationBody = `✨ ${quote}\n\n📚 ${
+      const body = `✨ ${quote}\n\n📚 ${
         type === "today"
           ? `${today} Full Schedule`
           : `${type.charAt(0).toUpperCase() + type.slice(1)} Classes`
       }:\n\n${slotMessage}`;
 
-      // Send notifications
+      const payload = {
+        title:
+          type === "today"
+            ? "📚 Today's Classes"
+            : `📖 ${type.charAt(0).toUpperCase() + type.slice(1)} Classes`,
+        body,
+      };
+
+      // ===== SEND TO BOTH TYPES =====
       if (expoTokens.length) {
-        await sendExpoPush(expoTokens, {
-          title:
-            type === "today"
-              ? "📚 Today's Classes"
-              : `📖 ${type.charAt(0).toUpperCase() + type.slice(1)} Classes`,
-          body: finalNotificationBody,
-        });
-      } else if (fcmTokens.length) {
-        await sendFCM(fcmTokens, {
-          title:
-            type === "today"
-              ? "📚 Today's Classes"
-              : `📖 ${type.charAt(0).toUpperCase() + type.slice(1)} Classes`,
-          body: finalNotificationBody,
-        });
+        await sendExpoPush(expoTokens, payload);
+      }
+
+      if (fcmTokens.length) {
+        await sendFCM(fcmTokens, payload);
       }
     }
 
@@ -152,11 +165,11 @@ export async function POST(req: Request) {
     });
 
   } catch (error: any) {
-  console.error("🔥 API ERROR:", error);
+    console.error("🔥 API ERROR:", error);
 
-  return NextResponse.json(
-    { success: false, error: error?.message || "Internal Server Error" },
-    { status: 500 }
-  );
-}
+    return NextResponse.json(
+      { success: false, error: error?.message || "Internal Server Error" },
+      { status: 500 }
+    );
+  }
 }
