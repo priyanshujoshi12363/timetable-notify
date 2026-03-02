@@ -7,48 +7,36 @@ export interface IUserDevice extends Document {
   semester: number;
   academicYear: string;
 
-  fcmToken: string;
-  expoToken:string;
+  fcmToken?: string;
+  expoToken?: string;
   createdAt: Date;
   updatedAt: Date;
 }
 
 const UserDeviceSchema: Schema<IUserDevice> = new Schema(
   {
-    branch: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    course: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    division: {
-      type: String,
-      required: true,
-      trim: true,
-    },
-    semester: {
-      type: Number,
-      required: true,
-    },
-    academicYear: {
-      type: String,
-      required: true,
-    },
+    branch: { type: String, required: true, trim: true },
+    course: { type: String, required: true, trim: true },
+    division: { type: String, required: true, trim: true },
+    semester: { type: Number, required: true },
+    academicYear: { type: String, required: true },
+
     fcmToken: {
       type: String,
       unique: true,
-    }, 
+      sparse: true, 
+    },
+
     expoToken: {
-      type: String,   
+      type: String,
+      unique: true,
+      sparse: true, // 🔥 allows multiple null
     },
   },
   { timestamps: true }
 );
 
+// Academic grouping index
 UserDeviceSchema.index({
   branch: 1,
   course: 1,
