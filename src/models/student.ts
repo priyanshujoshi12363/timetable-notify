@@ -7,10 +7,8 @@ export interface IUserDevice extends Document {
   semester: number;
   academicYear: string;
 
-  pushTokens: {
-    fcm?: string;
-    expo?: string;
-  };
+  fcmToken?: string;
+  expoToken?: string;
 
   createdAt: Date;
   updatedAt: Date;
@@ -24,19 +22,18 @@ const UserDeviceSchema: Schema<IUserDevice> = new Schema(
     semester: { type: Number, required: true },
     academicYear: { type: String, required: true },
 
-    pushTokens: {
-      fcm: {
-        type: String,
-        unique: true,
-        sparse: true,
-      },
-      expo: {
-        type: String,
-        unique: true,
-        sparse: true,
-      },
+  fcmToken: {
+  type: String,
+  unique: true,
+  sparse: true,
+},
+expoToken: {
+  type: String,
+  unique: true,
+  sparse: true,
+},
     },
-  },
+  
   { timestamps: true }
 );
 
