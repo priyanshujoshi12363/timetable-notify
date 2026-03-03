@@ -26,13 +26,11 @@ function calculateSemesterLectures() {
   const actualTeachingDays = Math.max(workingDays - EXAM_DAYS, 0);
   // Average lectures per day (21 lectures / 6 days)
   const lecturesPerDay = LECTURES_PER_WEEK / 6; // 3.5 lectures per day
-  
-  // Total lectures in semester = teaching days * lectures per day
-  // Adjusted to exactly 268 lectures
-  const maxLectures = 320; // Fixed to exactly 268 as specified
+
+  const maxLectures = 298; 
 
   return {
-    maxLectures, // Exactly 268 as requested
+    maxLectures, 
     actualTeachingDays,
     workingDays,
     lecturesPerDay: Number(lecturesPerDay.toFixed(1)),
