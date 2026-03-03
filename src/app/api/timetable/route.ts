@@ -21,7 +21,7 @@ export async function GET(req: Request) {
     if (dayParam) {
     
       targetDay = dayParam;
-      console.log("📅 Fetching schedule for requested day:", targetDay);
+     
     } else {
    
       targetDay = new Date().toLocaleDateString("en-US", {
@@ -46,8 +46,7 @@ export async function GET(req: Request) {
     );
 
     if (!daySchedule) {
-      console.log("❌ No schedule found for:", targetDay);
-      
+   
       return NextResponse.json({
         success: true,
         division: division,
