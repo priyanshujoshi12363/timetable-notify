@@ -38,7 +38,6 @@ export async function POST(req: Request) {
     console.log("📌 Type:", type);
 
     const timetables = await Timetable.find({
-      division: "2CSE AIML 30"
     });
 
     if (!timetables.length) {
