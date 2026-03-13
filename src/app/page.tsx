@@ -37,8 +37,8 @@ interface SubscriptionData {
   fcmToken: string;
   branch: string;
   course: string;
-  division: string;      // This stores the API format (e.g., "2CSE_CSE_2")
-  divisionDisplay: string; // This stores the display format (e.g., "2CSE CORE 2")
+  division: string;      // This stores the API format (e.g., "2CSE_CSE_2" for CSE, "2CSE AIML 15" for AIML)
+  divisionDisplay: string; // This stores the display format (same as division for AIML, "2CSE CORE 2" for CSE)
   semester: number;
   createdAt: string;
   updatedAt: string;
@@ -63,8 +63,8 @@ const COURSE_OPTIONS = ["AIML", "CSE"];
 export default function NotificationPage() {
   const [branch, setBranch] = useState("CSE");
   const [course, setCourse] = useState("AIML");
-  const [division, setDivision] = useState("");           // Display format (e.g., "2CSE CORE 2")
-  const [divisionAPI, setDivisionAPI] = useState("");     // API format (e.g., "2CSE_CSE_2")
+  const [division, setDivision] = useState("");           // Display format
+  const [divisionAPI, setDivisionAPI] = useState("");     // API format
   const [semester, setSemester] = useState(2);
   const [isEditing, setIsEditing] = useState(true);
   const [loading, setLoading] = useState(false);
@@ -88,16 +88,28 @@ export default function NotificationPage() {
   const [editSemester, setEditSemester] = useState(2);
   
   // ===== CONVERSION FUNCTIONS =====
-  const displayToAPI = (displayDiv: string): string => {
-    return displayDiv
-      .replace("CORE", "CSE")
-      .replace(/\s+/g, "_");
+  // Convert display format to API format based on course
+  const displayToAPI = (displayDiv: string, currentCourse: string): string => {
+    if (currentCourse === "CSE") {
+      // For CSE: "2CSE CORE 2" → "2CSE_CSE_2"
+      return displayDiv
+        .replace("CORE", "CSE")
+        .replace(/\s+/g, "_");
+    }
+    // For AIML: keep as is with spaces (e.g., "2CSE AIML 15")
+    return displayDiv;
   };
 
-  const APIToDisplay = (apiDiv: string): string => {
-    return apiDiv
-      .replace("CSE", "CORE")
-      .replace(/_/g, " ");
+  // Convert API format to display format based on course
+  const APIToDisplay = (apiDiv: string, currentCourse: string): string => {
+    if (currentCourse === "CSE") {
+      // For CSE: "2CSE_CSE_2" → "2CSE CORE 2"
+      return apiDiv
+        .replace("CSE", "CORE")
+        .replace(/_/g, " ");
+    }
+    // For AIML: keep as is with spaces
+    return apiDiv;
   };
 
   // ===== EXTENDED DIVISION OPTIONS =====
@@ -222,8 +234,14 @@ export default function NotificationPage() {
         const parsedData = JSON.parse(savedSubscription);
         
         // Handle both old and new data formats
-        let displayDiv = parsedData.division;
-        let apiDiv = parsedData.divisionAPI || displayToAPI(parsedData.division);
+        let displayDiv = parsedData.divisionDisplay || parsedData.division;
+        let apiDiv = parsedData.division || parsedData.division;
+        
+        // If it's CSE and we have display format, use that
+        if (parsedData.course === "CSE" && parsedData.divisionDisplay) {
+          displayDiv = parsedData.divisionDisplay;
+          apiDiv = parsedData.division;
+        }
         
         if (parsedData._id) {
           setSubscriptionData(parsedData);
@@ -289,7 +307,7 @@ export default function NotificationPage() {
   }, [divisionAPI, selectedDay, isSaved]);
 
   // ===== UPDATED TIMETABLE FETCHER =====
-  // Uses API format directly
+  // Uses API format directly (with spaces for AIML, underscores for CSE)
   const fetchTimetableForDay = async (divAPI: string, day: string, forceRefresh = false) => {
     if (!forceRefresh) {
       const cached = loadFromCache(divAPI, day);
@@ -304,6 +322,7 @@ export default function NotificationPage() {
     setTimetableError(null);
     try {
       console.log(`🌐 Fetching ${day} from API:`, divAPI);
+      // URL encode the division (spaces become %20)
       const response = await fetch(`/api/timetable?division=${encodeURIComponent(divAPI)}&day=${day}`);
       const data = await response.json();
       
@@ -311,6 +330,7 @@ export default function NotificationPage() {
         throw new Error(data.error || "Failed to fetch timetable");
       }
       
+      console.log("Timetable data received:", data);
       setTimetable(data);
       saveToCache(divAPI, day, data);
       
@@ -384,8 +404,8 @@ export default function NotificationPage() {
         return;
       }
 
-      // Generate API format from display format
-      const apiDivision = displayToAPI(division);
+      // Generate API format from display format based on course
+      const apiDivision = displayToAPI(division, course);
 
       const response = await fetch("/api/register", {
         method: "POST",
@@ -450,8 +470,8 @@ export default function NotificationPage() {
     setEditLoading(true);
     
     try {
-      // Generate API format from display format
-      const apiDivision = displayToAPI(editDivision);
+      // Generate API format from display format based on edit course
+      const apiDivision = displayToAPI(editDivision, editCourse);
 
       const response = await fetch(`/api/edit-course?id=${subscriptionData._id}`, {
         method: "POST",
@@ -764,7 +784,7 @@ export default function NotificationPage() {
                           onChange={(e) => {
                             const selected = e.target.value;
                             setDivision(selected);
-                            setDivisionAPI(displayToAPI(selected));
+                            setDivisionAPI(displayToAPI(selected, course));
                           }}
                           className="w-full appearance-none rounded-lg sm:rounded-xl border border-gray-200 hover:border-blue-300 focus:border-blue-500 cursor-pointer bg-white px-3 sm:px-4 py-2.5 sm:py-3.5 pr-8 sm:pr-10 text-sm sm:text-base text-gray-700 transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                         >
@@ -1125,7 +1145,7 @@ export default function NotificationPage() {
                       onChange={(e) => {
                         const selected = e.target.value;
                         setEditDivision(selected);
-                        setEditDivisionAPI(displayToAPI(selected));
+                        setEditDivisionAPI(displayToAPI(selected, editCourse));
                       }}
                       className="w-full rounded-lg sm:rounded-xl border border-gray-200 px-3 sm:px-4 py-2 sm:py-3 text-sm sm:text-base text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
                     >
