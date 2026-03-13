@@ -1,3 +1,5 @@
+export const runtime = "nodejs";
+
 import { NextResponse } from "next/server";
 import connectDB from "@/utils/db";
 import { Timetable } from "@/models/Timetable";
@@ -38,6 +40,7 @@ export async function POST(req: Request) {
     console.log("📌 Type:", type);
 
     const timetables = await Timetable.find({
+      division :"2CSE AIML 30"
     });
 
     if (!timetables.length) {
