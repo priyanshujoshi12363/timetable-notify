@@ -5,10 +5,6 @@ import UserDevice from "@/models/student";
 import { sendFCM } from "@/service/fcmSender";
 import { sendExpoPush } from "@/service/sendExpoPush";
 
-/* -------------------------------------------- */
-/* 🔥 TOMORROW MOTIVATIONAL QUOTES              */
-/* -------------------------------------------- */
-
 const tomorrowQuotes = [
   "Prepare today, conquer tomorrow 🚀",
   "Tomorrow is another opportunity to grow 🌱",
@@ -28,15 +24,10 @@ function getTomorrowQuote() {
   ];
 }
 
-/* -------------------------------------------- */
-/* 🔥 API FUNCTION                              */
-/* -------------------------------------------- */
-
 export async function POST() {
   try {
     await connectDB();
 
-    // 🔥 Calculate tomorrow (India timezone)
     const tomorrowDate = new Date();
     tomorrowDate.setDate(tomorrowDate.getDate() + 1);
 
@@ -49,8 +40,7 @@ export async function POST() {
 
     const quote = getTomorrowQuote();
 
-    const timetables = await Timetable.find({
-    });
+    const timetables = await Timetable.find({});
 
     if (!timetables.length) {
       console.log("❌ No timetables found");
@@ -59,13 +49,11 @@ export async function POST() {
 
     for (const timetable of timetables) {
 
-      // 🔥 Find tomorrow schedule
       const schedule = timetable.schedule.find(
         (d: any) =>
           d.day.toLowerCase() === tomorrow.toLowerCase()
       );
 
-      // 🔥 Get users of same division
       const users = await UserDevice.find({
         division: timetable.division,
         branch: timetable.branch,
@@ -93,10 +81,6 @@ export async function POST() {
       console.log("📲 Expo:", expoTokens.length);
       console.log("📲 FCM:", fcmTokens.length);
 
-      /* -------------------------------------------------- */
-      /* 🔥 CASE 1: NO CLASSES TOMORROW                    */
-      /* -------------------------------------------------- */
-
       if (!schedule) {
 
         const noClassMessage = `✨ ${quote}
@@ -119,10 +103,6 @@ Enjoy your day and recharge 💪`;
         continue;
       }
 
-      /* -------------------------------------------------- */
-      /* 🔥 BUILD COMPRESSED FULL DAY TIMETABLE            */
-      /* -------------------------------------------------- */
-
       const compressedLines = schedule.slots
         .map((slot: any) => {
           if (slot.subject) {
@@ -138,7 +118,7 @@ Enjoy your day and recharge 💪`;
           return null;
         })
         .filter(Boolean)
-        .slice(0, 6); // 🔥 Max 6 lines
+        .slice(0, 6);
 
       const timetableText = compressedLines.join("\n");
 
@@ -147,10 +127,6 @@ Enjoy your day and recharge 💪`;
 📚 ${tomorrow} Schedule:
 
 ${timetableText}`;
-
-      /* -------------------------------------------------- */
-      /* 🔥 SEND WITH EXPO PRIORITY                        */
-      /* -------------------------------------------------- */
 
       if (expoTokens.length) {
         console.log("🚀 Sending Expo Tomorrow Notification...");

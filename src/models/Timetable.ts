@@ -46,7 +46,10 @@ const TimetableSchema = new Schema(
     semester: { type: Number, required: true },
     academicYear: { type: String },
     division: { type: String, required: true, unique: true },
-    schedule: { type: [DaySchema], default: [] }
+    schedule: { type: [DaySchema], default: [] },
+
+    source: { type: String, enum: ["seed", "upload"], default: "seed" },
+    uploadedAt: { type: Date, default: null }
   },
   { timestamps: true }
 );

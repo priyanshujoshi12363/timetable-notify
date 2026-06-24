@@ -5,10 +5,12 @@ import Link from "next/link";
 import {
   HomeIcon,
   BellIcon,
+  ArrowUpTrayIcon,
 } from "@heroicons/react/24/outline";
 import {
   HomeIcon as HomeSolid,
   BellIcon as BellSolid,
+  ArrowUpTrayIcon as ArrowUpTraySolid,
 } from "@heroicons/react/24/solid";
 
 const navItems = [
@@ -19,11 +21,17 @@ const navItems = [
     activeIcon: BellSolid,
   },
   {
+    name: "Upload",
+    href: "/upload",
+    icon: ArrowUpTrayIcon,
+    activeIcon: ArrowUpTraySolid,
+  },
+  {
     name: "Attendance",
     href: "/attandance",
     icon: HomeIcon,
     activeIcon: HomeSolid,
-  }
+  },
 ];
 
 export default function Navbar() {
@@ -34,9 +42,9 @@ export default function Navbar() {
       {/* Desktop Navbar */}
       <div className="hidden md:flex fixed top-0 left-0 w-full bg-white shadow-sm z-50">
         <div className="max-w-6xl mx-auto flex justify-between items-center px-6 py-4 w-full">
-          <h1 className="text-xl font-semibold text-gray-800">
-            Timely
-          </h1>
+          <Link href="/" className="text-xl font-semibold text-gray-800">
+            Class Compass
+          </Link>
           <div className="flex gap-8">
             {navItems.map((item) => {
               const isActive = pathname === item.href;

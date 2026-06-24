@@ -39,9 +39,7 @@ export async function POST(req: Request) {
     console.log("📅 Today:", today);
     console.log("📌 Type:", type);
 
-    const timetables = await Timetable.find({
-      division :"2CSE AIML 30"
-    });
+    const timetables = await Timetable.find({});
 
     if (!timetables.length) {
       console.log("⚠️ No timetables found");
@@ -82,7 +80,6 @@ export async function POST(req: Request) {
       console.log("📲 Expo Tokens:", expoTokens.length);
       console.log("📲 FCM Tokens:", fcmTokens.length);
 
-      // ===== NO CLASS TODAY =====
       if (!schedule) {
         const body = `✨ ${quote}\n\n😌 Today is ${today}. No classes scheduled.\nRecharge yourself and come back stronger 💪`;
 
@@ -102,7 +99,6 @@ export async function POST(req: Request) {
         continue;
       }
 
-      // ===== FILTER SLOTS =====
       let filteredSlots = schedule.slots;
 
       const timeGroups: any = {
@@ -151,7 +147,6 @@ export async function POST(req: Request) {
         body,
       };
 
-      // ===== SEND TO BOTH TYPES =====
       if (expoTokens.length) {
         await sendExpoPush(expoTokens, payload);
       }

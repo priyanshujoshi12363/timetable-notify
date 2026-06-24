@@ -13,11 +13,11 @@ export async function POST(req: Request) {
       semester,
       fcmToken,
       expoToken,
+      academicYear: academicYearInput,
     } = await req.json();
 
-    const academicYear = "2024-2025";
+    const academicYear = academicYearInput || "2024-2025";
 
-    // ✅ Basic validation
     if (!branch || !course || !division || !semester) {
       return NextResponse.json(
         { success: false, message: "Missing required fields" },
@@ -53,7 +53,6 @@ export async function POST(req: Request) {
       );
     }
 
-    // 🔥 Build dynamic search query
     const searchConditions: any[] = [];
 
     if (fcmToken) searchConditions.push({ fcmToken });
@@ -68,7 +67,6 @@ export async function POST(req: Request) {
     }
 
     if (device) {
-      // ✅ Update existing device
       device.branch = branch;
       device.course = course;
       device.division = division;
@@ -80,7 +78,6 @@ export async function POST(req: Request) {
 
       await device.save();
     } else {
-      // ✅ Create new device
       device = await UserDevice.create({
         branch,
         course,
@@ -100,7 +97,6 @@ export async function POST(req: Request) {
       },
       { status: 200 }
     );
-
   } catch (error: any) {
     console.error("ERROR:", error);
 

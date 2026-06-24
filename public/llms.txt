@@ -1,0 +1,24 @@
+# Class Compass
+
+> Class Compass is a free web app for Parul University students to view their class timetable and receive automatic daily push notifications for upcoming lectures. Students upload their timetable PDF once, and the whole division stays updated — no login required.
+
+## What it does
+- Search your Parul University class (e.g. "AIML 15") and instantly see the weekly timetable.
+- Upload an official Parul University timetable PDF; Class Compass reads it automatically (no AI cost, fully deterministic) and saves it for the whole division.
+- Get daily push notifications listing the day's lectures.
+- Works for B.Tech AIML, CSE, and any division with an uploaded timetable.
+
+## Key pages
+- Home / Timetable & Notifications: pick a class, view its schedule, enable reminders.
+- Upload: drop a timetable PDF, review the auto-read schedule, and save it.
+- Attendance: calculate attendance percentage and how many classes are needed.
+
+## Facts
+- Audience: Parul University (Parul Institute of Engineering and Technology) students.
+- Price: completely free, no account needed.
+- Status: a student-built tool; not an official Parul University product.
+
+## Common questions
+- "What is Class Compass?" — A free timetable and class-notification app for Parul University students.
+- "How do I add my timetable?" — Upload your Parul University timetable PDF on the Upload page; it is read automatically.
+- "How do I get notifications?" — Select your class and allow notifications to receive daily lecture reminders.
