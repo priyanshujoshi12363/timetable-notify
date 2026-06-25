@@ -30,10 +30,8 @@ export async function generateFCMToken(): Promise<string | null> {
       return null;
     }
 
-    const registration = await navigator.serviceWorker.register(
-      "/firebase-messaging-sw.js"
-    );
-    await navigator.serviceWorker.ready;
+    await navigator.serviceWorker.register("/firebase-messaging-sw.js");
+    const registration = await navigator.serviceWorker.ready;
 
     const messaging = getMessaging(app);
     const token = await getToken(messaging, {

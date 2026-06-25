@@ -10,3 +10,18 @@ firebase.initializeApp({
 });
 
 const messaging = firebase.messaging();
+
+messaging.onBackgroundMessage((payload) => {
+  const data = payload.data || {};
+  self.registration.showNotification(data.title || "Class Compass", {
+    body: data.body || "",
+    icon: "/icon.png",
+    badge: "/icon.png",
+    data: { link: "/" },
+  });
+});
+
+self.addEventListener("notificationclick", (event) => {
+  event.notification.close();
+  event.waitUntil(clients.openWindow("/"));
+});

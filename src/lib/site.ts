@@ -25,6 +25,7 @@ export const SITE_KEYWORDS = [
 ];
 
 export const AUTHOR = "Priyanshu Joshi";
+export const CONTACT_EMAIL = "joshipriyanshu575@gmail.com";
 
 export const FAQ: { q: string; a: string }[] = [
   {

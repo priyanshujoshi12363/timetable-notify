@@ -13,6 +13,7 @@ export async function POST(req: Request) {
       semester,
       fcmToken,
       expoToken,
+      deviceId,
       academicYear: academicYearInput,
     } = await req.json();
 
@@ -53,40 +54,49 @@ export async function POST(req: Request) {
       );
     }
 
-    const searchConditions: any[] = [];
-
-    if (fcmToken) searchConditions.push({ fcmToken });
-    if (expoToken) searchConditions.push({ expoToken });
+    const base = { branch, course, division, semester, academicYear };
 
     let device = null;
 
-    if (searchConditions.length > 0) {
-      device = await UserDevice.findOne({
-        $or: searchConditions,
-      });
-    }
+    if (deviceId) {
+      if (fcmToken) {
+        await UserDevice.deleteMany({ fcmToken, deviceId: { $ne: deviceId } });
+      }
+      if (expoToken) {
+        await UserDevice.deleteMany({ expoToken, deviceId: { $ne: deviceId } });
+      }
 
-    if (device) {
-      device.branch = branch;
-      device.course = course;
-      device.division = division;
-      device.semester = semester;
-      device.academicYear = academicYear;
-
-      if (fcmToken) device.fcmToken = fcmToken;
-      if (expoToken) device.expoToken = expoToken;
-
-      await device.save();
+      device = await UserDevice.findOneAndUpdate(
+        { deviceId },
+        {
+          ...base,
+          deviceId,
+          ...(fcmToken ? { fcmToken } : {}),
+          ...(expoToken ? { expoToken } : {}),
+        },
+        { new: true, upsert: true, setDefaultsOnInsert: true }
+      );
     } else {
-      device = await UserDevice.create({
-        branch,
-        course,
-        division,
-        semester,
-        academicYear,
-        fcmToken: fcmToken || undefined,
-        expoToken: expoToken || undefined,
-      });
+      const searchConditions: any[] = [];
+      if (fcmToken) searchConditions.push({ fcmToken });
+      if (expoToken) searchConditions.push({ expoToken });
+
+      if (searchConditions.length > 0) {
+        device = await UserDevice.findOne({ $or: searchConditions });
+      }
+
+      if (device) {
+        Object.assign(device, base);
+        if (fcmToken) device.fcmToken = fcmToken;
+        if (expoToken) device.expoToken = expoToken;
+        await device.save();
+      } else {
+        device = await UserDevice.create({
+          ...base,
+          fcmToken: fcmToken || undefined,
+          expoToken: expoToken || undefined,
+        });
+      }
     }
 
     return NextResponse.json(

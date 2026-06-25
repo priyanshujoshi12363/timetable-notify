@@ -13,17 +13,20 @@ export default function NotificationListener() {
 
       const messaging = getMessaging(app);
 
-      unsubscribe = onMessage(messaging, (payload) => {
+      unsubscribe = onMessage(messaging, async (payload) => {
         console.log("Foreground message:", payload);
 
-        if (Notification.permission === "granted") {
-          new Notification(
-            payload.notification?.title || "New Notification",
-            {
-              body: payload.notification?.body,
-              icon: payload.notification?.icon || "/favicon.ico",
-            }
-          );
+        if (Notification.permission !== "granted") return;
+
+        const title =
+          payload.data?.title || payload.notification?.title || "Class Compass";
+        const body = payload.data?.body || payload.notification?.body || "";
+
+        const registration = await navigator.serviceWorker.getRegistration();
+        if (registration) {
+          registration.showNotification(title, { body, icon: "/icon.png" });
+        } else {
+          new Notification(title, { body, icon: "/icon.png" });
         }
       });
     };

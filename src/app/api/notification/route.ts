@@ -38,8 +38,7 @@ export async function POST(req: Request) {
 
     console.log("📅 Today:", today);
     console.log("📌 Type:", type);
-
-    const timetables = await Timetable.find({});
+    const timetables = await Timetable.find({ division: "3AIML15" });
 
     if (!timetables.length) {
       console.log("⚠️ No timetables found");
@@ -54,13 +53,7 @@ export async function POST(req: Request) {
         (d: any) => d.day.toLowerCase() === today.toLowerCase()
       );
 
-      const users = await UserDevice.find({
-        division: timetable.division,
-        branch: timetable.branch,
-        course: timetable.course,
-        semester: timetable.semester,
-        academicYear: timetable.academicYear,
-      }).lean();;
+      const users = await UserDevice.find({ division: timetable.division }).lean();
 
 
       if (!users.length) {

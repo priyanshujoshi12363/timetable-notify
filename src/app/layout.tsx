@@ -2,7 +2,6 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Navbar from "@/components/Navbar";
-import SeoFooter from "@/components/SeoFooter";
 import NotificationListener from "@/service/notification";
 import {
   SITE_URL,
@@ -152,7 +151,6 @@ export default function RootLayout({
         <NotificationListener />
         <Navbar />
         <main className="max-w-6xl mx-auto px-4">{children}</main>
-        <SeoFooter />
       </body>
     </html>
   );

@@ -7,6 +7,7 @@ export interface IUserDevice extends Document {
   semester: number;
   academicYear: string;
 
+  deviceId?: string;
   fcmToken?: string;
   expoToken?: string;
 
@@ -22,7 +23,12 @@ const UserDeviceSchema: Schema<IUserDevice> = new Schema(
     semester: { type: Number, required: true },
     academicYear: { type: String, required: true },
 
-  fcmToken: {
+  deviceId: {
+  type: String,
+  unique: true,
+  sparse: true,
+},
+fcmToken: {
   type: String,
   unique: true,
   sparse: true,

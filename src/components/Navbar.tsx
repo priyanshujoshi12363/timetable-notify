@@ -6,11 +6,13 @@ import {
   HomeIcon,
   BellIcon,
   ArrowUpTrayIcon,
+  InformationCircleIcon,
 } from "@heroicons/react/24/outline";
 import {
   HomeIcon as HomeSolid,
   BellIcon as BellSolid,
   ArrowUpTrayIcon as ArrowUpTraySolid,
+  InformationCircleIcon as InformationCircleSolid,
 } from "@heroicons/react/24/solid";
 
 const navItems = [
@@ -31,6 +33,12 @@ const navItems = [
     href: "/attandance",
     icon: HomeIcon,
     activeIcon: HomeSolid,
+  },
+  {
+    name: "About",
+    href: "/about",
+    icon: InformationCircleIcon,
+    activeIcon: InformationCircleSolid,
   },
 ];
 

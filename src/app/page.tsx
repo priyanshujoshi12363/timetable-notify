@@ -4,11 +4,12 @@ import { useEffect, useMemo, useState, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { generateFCMToken } from "@/lib/getfcmtoken";
+import { TbCompass, TbUnlink } from "react-icons/tb";
 import {
-  Bell, Search, Loader2, CalendarDays, Clock, Users, MapPin,
-  PartyPopper, BookMarked, Coffee, UploadCloud, CheckCircle, AlertCircle,
-  GraduationCap, RefreshCw,
-} from "lucide-react";
+  FiSearch, FiClock, FiUser, FiMapPin, FiUploadCloud, FiCheckCircle,
+  FiAlertCircle, FiRefreshCw, FiLoader, FiCoffee, FiBookOpen, FiCode,
+  FiSun, FiCalendar, FiChevronRight,
+} from "react-icons/fi";
 
 interface Batch { batch: string; subject: string | null; faculty: string | null; room: string | null; }
 interface Slot { time: string; subject: string | null; faculty: string | null; room: string | null; batches: Batch[]; }
@@ -25,6 +26,26 @@ function todayName() {
   return ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"][new Date().getDay()];
 }
 
+function getDeviceId() {
+  if (typeof window === "undefined") return "";
+  let id = localStorage.getItem("deviceId");
+  if (!id) {
+    id = crypto?.randomUUID
+      ? crypto.randomUUID()
+      : `dev_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+    localStorage.setItem("deviceId", id);
+  }
+  return id;
+}
+
+function Chip({ icon: Icon, children }: { icon: any; children: React.ReactNode }) {
+  return (
+    <span className="inline-flex items-center gap-1 rounded-full bg-white px-2.5 py-0.5 text-xs text-slate-600 ring-1 ring-slate-200">
+      <Icon className="h-3 w-3 text-slate-400" /> {children}
+    </span>
+  );
+}
+
 function SlotCard({ slot }: { slot: Slot }) {
   const hasBatches = slot.batches?.length > 0;
   const isHoliday = slot.subject === "HOLIDAY";
@@ -32,39 +53,44 @@ function SlotCard({ slot }: { slot: Slot }) {
   const isEvent = slot.subject === "CODE CHEF";
 
   return (
-    <div className={`rounded-xl border-2 overflow-hidden transition hover:shadow-md ${
-      hasBatches ? "border-purple-200 bg-purple-50/40" : "border-blue-200 bg-blue-50/30"
-    }`}>
-      <div className={`flex items-center gap-2 px-3 py-2 border-b ${hasBatches ? "bg-purple-100/50 border-purple-200" : "bg-blue-100/50 border-blue-200"}`}>
-        <Clock className={`w-3.5 h-3.5 ${hasBatches ? "text-purple-600" : "text-blue-600"}`} />
-        <span className="text-xs font-semibold text-gray-700">{slot.time.replace("-", " - ")}</span>
+    <div className="group overflow-hidden rounded-2xl bg-white shadow-sm ring-1 ring-slate-100 transition duration-200 hover:-translate-y-0.5 hover:shadow-md hover:ring-slate-200">
+      <div className="flex items-center justify-between border-b border-slate-100 bg-slate-50/70 px-4 py-2.5">
+        <span className="inline-flex items-center gap-1.5 text-xs font-semibold tracking-wide text-slate-500">
+          <FiClock className="h-3.5 w-3.5" /> {slot.time.replace("-", " – ")}
+        </span>
+        {hasBatches && (
+          <span className="rounded-full bg-violet-100 px-2 py-0.5 text-[10px] font-semibold text-violet-700">
+            {slot.batches.length} batches
+          </span>
+        )}
       </div>
-      <div className="p-3">
+
+      <div className="p-4">
         {hasBatches ? (
           <div className="space-y-2">
             {slot.batches.map((b, i) => (
-              <div key={i} className="flex flex-wrap items-center gap-2 text-sm">
-                <span className="px-2 py-0.5 bg-purple-600 text-white text-xs rounded-full">Batch {b.batch}</span>
-                <span className="font-bold text-gray-800">{b.subject || "—"}</span>
-                {b.faculty && <span className="text-gray-600 flex items-center gap-1 bg-white/60 px-2 py-0.5 rounded-full text-xs"><Users className="w-3 h-3" />{b.faculty}</span>}
-                {b.room && <span className="text-gray-600 flex items-center gap-1 bg-white/60 px-2 py-0.5 rounded-full text-xs"><MapPin className="w-3 h-3" />{b.room}</span>}
+              <div key={i} className="flex flex-wrap items-center gap-2 rounded-xl bg-violet-50/70 px-3 py-2">
+                <span className="rounded-full bg-violet-600 px-2 py-0.5 text-[11px] font-semibold text-white">B{b.batch}</span>
+                <span className="font-bold text-slate-800">{b.subject || "—"}</span>
+                {b.faculty && <Chip icon={FiUser}>{b.faculty}</Chip>}
+                {b.room && <Chip icon={FiMapPin}>{b.room}</Chip>}
               </div>
             ))}
           </div>
         ) : isHoliday ? (
-          <div className="flex items-center gap-2 text-gray-500 text-sm"><PartyPopper className="w-5 h-5" /> Holiday</div>
+          <div className="flex items-center gap-2 text-sm font-medium text-slate-500"><FiSun className="h-5 w-5 text-amber-500" /> Holiday</div>
         ) : isLibrary ? (
-          <div className="flex items-center gap-2 text-amber-600 text-sm"><BookMarked className="w-5 h-5" /> Library / Self Study</div>
+          <div className="flex items-center gap-2 text-sm font-medium text-amber-600"><FiBookOpen className="h-5 w-5" /> Library / Self Study</div>
         ) : isEvent ? (
-          <div className="flex items-center gap-2 text-emerald-600 text-sm font-medium"><GraduationCap className="w-5 h-5" /> {slot.subject}</div>
+          <div className="flex items-center gap-2 text-sm font-semibold text-emerald-600"><FiCode className="h-5 w-5" /> {slot.subject}</div>
         ) : slot.subject ? (
-          <div className="flex flex-wrap items-center gap-2 text-sm">
-            <span className="font-bold text-gray-800 text-base">{slot.subject}</span>
-            {slot.faculty && <span className="text-gray-600 flex items-center gap-1 bg-blue-50 px-2 py-0.5 rounded-full text-xs"><Users className="w-3 h-3" />{slot.faculty}</span>}
-            {slot.room && <span className="text-gray-600 flex items-center gap-1 bg-blue-50 px-2 py-0.5 rounded-full text-xs"><MapPin className="w-3 h-3" />Room {slot.room}</span>}
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="text-base font-bold text-slate-800">{slot.subject}</span>
+            {slot.faculty && <Chip icon={FiUser}>{slot.faculty}</Chip>}
+            {slot.room && <Chip icon={FiMapPin}>Room {slot.room}</Chip>}
           </div>
         ) : (
-          <div className="flex items-center gap-2 text-gray-400 text-sm"><Coffee className="w-5 h-5" /> Free period</div>
+          <div className="flex items-center gap-2 text-sm text-slate-400"><FiCoffee className="h-5 w-5" /> Free period</div>
         )}
       </div>
     </div>
@@ -146,10 +172,14 @@ function NotificationScreen() {
         body: JSON.stringify({
           branch: tt.branch, course: tt.course, division: tt.division,
           semester: tt.semester, academicYear: tt.academicYear, fcmToken: token,
+          deviceId: getDeviceId(),
         }),
       });
       const data = await res.json();
       setSubscribed(!!data.success);
+      if (data.success && data.data?._id) {
+        localStorage.setItem("myDeviceId", data.data._id);
+      }
     } catch {
       return;
     } finally {
@@ -157,52 +187,80 @@ function NotificationScreen() {
     }
   }
 
+  async function unlink() {
+    if (
+      !confirm(
+        `Remove ${selected} from this device? You'll stop getting its reminders and can pick or upload another class.`
+      )
+    ) {
+      return;
+    }
+    const id = localStorage.getItem("myDeviceId");
+    if (id) {
+      try {
+        await fetch(`/api/delete?userId=${id}`, { method: "DELETE" });
+      } catch {
+        void 0;
+      }
+    }
+    localStorage.removeItem("myClass");
+    localStorage.removeItem("myDeviceId");
+    setSelected("");
+    setQuery("");
+    setTimetable(null);
+    setSubscribed(false);
+    setStatus("idle");
+  }
+
   if (!mounted) return null;
 
   return (
     <div className="min-h-screen py-4 sm:py-8">
-      <div className="max-w-3xl mx-auto space-y-6">
-        <div className="flex items-center gap-3 bg-white/60 backdrop-blur-sm p-4 sm:p-6 rounded-2xl shadow-lg border border-white/40">
-          <div className="p-3 bg-gradient-to-br from-blue-600 to-indigo-600 rounded-xl shadow-lg">
-            <Bell className="w-6 h-6 text-white" />
-          </div>
-          <div>
-            <h1 className="text-xl sm:text-2xl font-bold bg-gradient-to-r from-gray-800 to-gray-600 bg-clip-text text-transparent">
-              Class Compass
-            </h1>
-            <p className="text-xs sm:text-sm text-gray-500">Parul University timetable &amp; daily class notifications — pick your class to begin.</p>
+      <div className="mx-auto max-w-3xl space-y-5 sm:space-y-6">
+
+        <div className="animate-in-up relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-600 via-violet-600 to-fuchsia-600 p-6 shadow-xl shadow-indigo-500/20 sm:p-8">
+          <div className="pointer-events-none absolute -right-10 -top-12 h-40 w-40 rounded-full bg-white/10 blur-2xl" />
+          <div className="pointer-events-none absolute -bottom-16 -left-8 h-44 w-44 rounded-full bg-fuchsia-300/20 blur-3xl" />
+          <div className="relative flex items-center gap-4">
+            <div className="grid h-14 w-14 place-items-center rounded-2xl bg-white/15 ring-1 ring-white/25 backdrop-blur">
+              <TbCompass className="h-8 w-8 text-white" />
+            </div>
+            <div>
+              <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">Class Compass</h1>
+              <p className="mt-0.5 text-sm text-indigo-100">Parul University timetable &amp; daily class reminders</p>
+            </div>
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl shadow-xl border border-gray-100 p-5 sm:p-6 space-y-3">
-          <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
-            <CalendarDays className="w-4 h-4 text-blue-600" /> Find your class
+        <div className="animate-in-up space-y-3 rounded-3xl bg-white p-5 shadow-lg shadow-slate-200/60 ring-1 ring-slate-100 sm:p-6">
+          <label className="flex items-center gap-2 text-sm font-semibold text-slate-700">
+            <FiCalendar className="h-4 w-4 text-indigo-600" /> Find your class
           </label>
 
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <FiSearch className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
             <input
               value={query}
               onChange={(e) => { setQuery(e.target.value); setShowList(true); }}
               onFocus={() => setShowList(true)}
               onBlur={() => setTimeout(() => setShowList(false), 150)}
               placeholder="Search e.g. AIML 15"
-              className="w-full rounded-xl border border-gray-200 hover:border-blue-300 focus:border-blue-500 bg-white pl-9 pr-3 py-3 text-sm text-gray-700 focus:outline-none focus:ring-2 focus:ring-blue-500/20"
+              className="w-full rounded-2xl border border-slate-200 bg-slate-50/60 py-3 pl-10 pr-3 text-sm text-slate-700 transition placeholder:text-slate-400 hover:border-indigo-300 focus:border-indigo-500 focus:bg-white focus:outline-none focus:ring-4 focus:ring-indigo-500/10"
             />
 
             {showList && filtered.length > 0 && (
-              <div className="absolute z-20 mt-1 w-full max-h-60 overflow-auto rounded-xl border border-gray-200 bg-white shadow-xl">
+              <div className="absolute z-20 mt-2 max-h-64 w-full overflow-auto rounded-2xl border border-slate-100 bg-white p-1 shadow-2xl shadow-slate-300/40">
                 {filtered.map((d) => (
                   <button
                     key={d.division}
                     onMouseDown={(e) => e.preventDefault()}
                     onClick={() => selectClass(d.division)}
-                    className={`w-full text-left px-4 py-2.5 text-sm hover:bg-blue-50 flex items-center justify-between ${
-                      selected === d.division ? "bg-blue-50 text-blue-700" : "text-gray-700"
+                    className={`flex w-full items-center justify-between rounded-xl px-3.5 py-2.5 text-sm transition ${
+                      selected === d.division ? "bg-indigo-50 text-indigo-700" : "text-slate-700 hover:bg-slate-50"
                     }`}
                   >
                     <span className="font-medium">{d.division}</span>
-                    <span className="text-xs text-gray-400">
+                    <span className="text-xs text-slate-400">
                       {d.course}{d.semester ? ` · Sem ${d.semester}` : ""}
                     </span>
                   </button>
@@ -212,79 +270,84 @@ function NotificationScreen() {
           </div>
 
           {query.trim() && filtered.length === 0 ? (
-            <div className="rounded-xl border border-violet-200 bg-violet-50 p-4 space-y-3">
-              <div className="flex items-start gap-2">
-                <AlertCircle className="w-5 h-5 text-violet-600 shrink-0 mt-0.5" />
+            <div className="space-y-3 rounded-2xl border border-violet-200 bg-violet-50/70 p-4">
+              <div className="flex items-start gap-2.5">
+                <FiAlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-violet-600" />
                 <div>
-                  <p className="text-sm font-semibold text-gray-800">Can&apos;t find &ldquo;{query}&rdquo;</p>
-                  <p className="text-xs text-gray-600">Your class isn&apos;t added yet. Upload its timetable PDF and it&apos;ll appear here for everyone in your class.</p>
+                  <p className="text-sm font-semibold text-slate-800">Can&apos;t find &ldquo;{query}&rdquo;</p>
+                  <p className="text-xs text-slate-600">Your class isn&apos;t added yet. Upload its timetable PDF and it&apos;ll appear here for everyone in your class.</p>
                 </div>
               </div>
-              <ol className="text-xs text-gray-600 space-y-1 list-decimal list-inside pl-1">
+              <ol className="list-inside list-decimal space-y-1 pl-1 text-xs text-slate-600">
                 <li>Get your official class timetable PDF.</li>
                 <li>Open Upload and drop the PDF — we read it automatically.</li>
                 <li>Review and save. Done!</li>
               </ol>
-              <Link href="/upload" className="inline-flex items-center gap-2 rounded-lg bg-gradient-to-r from-violet-600 to-indigo-600 px-4 py-2.5 text-white text-sm font-semibold shadow hover:shadow-lg transition">
-                <UploadCloud className="w-4 h-4" /> Upload your timetable PDF
+              <Link href="/upload" className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-4 py-2.5 text-sm font-semibold text-white shadow transition hover:shadow-lg">
+                <FiUploadCloud className="h-4 w-4" /> Upload your timetable PDF
               </Link>
             </div>
           ) : (
             <div className="flex items-center justify-between gap-3 pt-1">
-              <p className="text-xs text-gray-400">
+              <p className="text-xs text-slate-400">
                 {divisions.length ? `${divisions.length} class${divisions.length > 1 ? "es" : ""} available` : "No class timetables yet."}
               </p>
-              <Link href="/upload" className="flex items-center gap-1.5 text-xs font-medium text-violet-600 hover:text-violet-800">
-                <UploadCloud className="w-4 h-4" /> Upload a timetable
+              <Link href="/upload" className="inline-flex items-center gap-1.5 text-xs font-semibold text-violet-600 transition hover:text-violet-800">
+                <FiUploadCloud className="h-4 w-4" /> Upload a timetable
               </Link>
             </div>
           )}
 
           {subscribed && (
-            <div className="flex items-center gap-2 text-xs text-green-700 bg-green-50 border border-green-200 rounded-lg px-3 py-2">
-              <CheckCircle className="w-4 h-4" /> You'll get daily reminders for {selected}.
+            <div className="flex items-center gap-2 rounded-xl border border-emerald-200 bg-emerald-50 px-3 py-2 text-xs font-medium text-emerald-700">
+              <FiCheckCircle className="h-4 w-4" /> You&apos;ll get daily reminders for {selected}.
             </div>
           )}
           {subscribing && (
-            <div className="flex items-center gap-2 text-xs text-gray-500">
-              <Loader2 className="w-4 h-4 animate-spin" /> Enabling notifications…
+            <div className="flex items-center gap-2 text-xs text-slate-500">
+              <FiLoader className="h-4 w-4 animate-spin" /> Enabling notifications…
             </div>
           )}
         </div>
 
         {status === "loading" && (
-          <div className="flex flex-col items-center py-16 bg-white rounded-2xl shadow-xl">
-            <Loader2 className="w-10 h-10 text-blue-600 animate-spin" />
-            <p className="text-sm text-gray-500 mt-3">Loading timetable…</p>
+          <div className="flex flex-col items-center rounded-3xl bg-white py-16 shadow-lg ring-1 ring-slate-100">
+            <FiLoader className="h-9 w-9 animate-spin text-indigo-600" />
+            <p className="mt-3 text-sm text-slate-500">Loading timetable…</p>
           </div>
         )}
 
         {status === "notfound" && (
-          <div className="bg-white rounded-2xl shadow-xl border border-amber-200 p-8 text-center">
-            <div className="inline-flex p-4 bg-amber-100 rounded-2xl mb-4">
-              <AlertCircle className="w-8 h-8 text-amber-600" />
+          <div className="rounded-3xl border border-amber-200 bg-white p-8 text-center shadow-lg">
+            <div className="mb-4 inline-flex rounded-2xl bg-amber-100 p-4">
+              <FiAlertCircle className="h-8 w-8 text-amber-600" />
             </div>
-            <h3 className="font-semibold text-gray-800">No timetable for {selected} yet</h3>
-            <p className="text-sm text-gray-500 mt-1 mb-5">Be the first to add it — upload the PDF and your whole class is set.</p>
-            <Link href="/upload" className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-5 py-3 text-white font-semibold shadow-lg hover:shadow-xl transition">
-              <UploadCloud className="w-5 h-5" /> Upload timetable
+            <h3 className="text-lg font-bold text-slate-800">No timetable for {selected} yet</h3>
+            <p className="mb-5 mt-1 text-sm text-slate-500">Be the first to add it — upload the PDF and your whole class is set.</p>
+            <Link href="/upload" className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-violet-600 to-indigo-600 px-5 py-3 font-semibold text-white shadow-lg transition hover:shadow-xl">
+              <FiUploadCloud className="h-5 w-5" /> Upload timetable <FiChevronRight className="h-4 w-4" />
             </Link>
           </div>
         )}
 
         {status === "ready" && timetable && (
-          <div className="space-y-4">
-            <div className="bg-white rounded-2xl shadow-lg border border-gray-100 p-4">
-              <div className="grid grid-cols-3 sm:grid-cols-6 gap-2">
+          <div className="animate-in-up space-y-4">
+            <div className="rounded-2xl bg-white p-2 shadow-sm ring-1 ring-slate-100">
+              <div className="grid grid-cols-6 gap-1.5">
                 {days.map((day) => {
                   const isActive = day === selectedDay;
                   const isToday = day === todayName();
                   return (
-                    <button key={day} onClick={() => setSelectedDay(day)}
-                      className={`relative flex flex-col items-center py-2.5 rounded-xl text-xs font-medium transition ${
-                        isActive ? "bg-gradient-to-br from-blue-600 to-indigo-600 text-white shadow-md scale-105" : "bg-gray-50 text-gray-600 hover:bg-gray-100"
-                      }`}>
-                      {isToday && !isActive && <span className="absolute -top-1.5 -right-1.5 w-3 h-3 bg-blue-500 rounded-full animate-pulse" />}
+                    <button
+                      key={day}
+                      onClick={() => setSelectedDay(day)}
+                      className={`relative rounded-xl py-2.5 text-xs font-semibold transition ${
+                        isActive
+                          ? "bg-gradient-to-br from-indigo-600 to-violet-600 text-white shadow-md shadow-indigo-500/30"
+                          : "text-slate-500 hover:bg-slate-50"
+                      }`}
+                    >
+                      {isToday && !isActive && <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-indigo-500" />}
                       {day.slice(0, 3)}
                     </button>
                   );
@@ -292,22 +355,32 @@ function NotificationScreen() {
               </div>
             </div>
 
-            <div className="flex items-center justify-between px-1">
-              <h3 className="font-semibold text-gray-800">
-                {selectedDay === todayName() ? "Today" : selectedDay} · {timetable.division}
-              </h3>
-              <button onClick={() => selectClass(selected)} className="flex items-center gap-1 text-xs text-gray-500 hover:text-blue-600">
-                <RefreshCw className="w-3.5 h-3.5" /> Refresh
-              </button>
+            <div className="flex items-end justify-between px-1">
+              <div>
+                <h3 className="text-base font-bold text-slate-800">
+                  {selectedDay === todayName() ? "Today" : selectedDay}
+                </h3>
+                <p className="text-xs text-slate-400">
+                  {timetable.division} · {daySlots.length} class{daySlots.length === 1 ? "" : "es"}
+                </p>
+              </div>
+              <div className="flex items-center gap-1.5">
+                <button onClick={() => selectClass(selected)} className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-slate-500 transition hover:bg-slate-100">
+                  <FiRefreshCw className="h-3.5 w-3.5" /> Refresh
+                </button>
+                <button onClick={unlink} className="inline-flex items-center gap-1.5 rounded-lg px-2.5 py-1.5 text-xs font-medium text-rose-500 transition hover:bg-rose-50">
+                  <TbUnlink className="h-3.5 w-3.5" /> Unlink
+                </button>
+              </div>
             </div>
 
             {daySlots.length ? (
               <div className="space-y-3">{daySlots.map((s, i) => <SlotCard key={i} slot={s} />)}</div>
             ) : (
-              <div className="flex flex-col items-center py-14 bg-white rounded-2xl shadow-xl">
-                <PartyPopper className="w-10 h-10 text-amber-500 mb-3" />
-                <p className="font-medium text-gray-700">No classes on {selectedDay}</p>
-                <p className="text-sm text-gray-500">Enjoy your day off!</p>
+              <div className="flex flex-col items-center rounded-3xl bg-white py-14 shadow-lg ring-1 ring-slate-100">
+                <FiSun className="mb-3 h-10 w-10 text-amber-500" />
+                <p className="font-semibold text-slate-700">No classes on {selectedDay}</p>
+                <p className="text-sm text-slate-500">Enjoy your day off!</p>
               </div>
             )}
           </div>
