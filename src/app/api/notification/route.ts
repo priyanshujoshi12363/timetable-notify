@@ -38,7 +38,7 @@ export async function POST(req: Request) {
 
     console.log("📅 Today:", today);
     console.log("📌 Type:", type);
-    const timetables = await Timetable.find({ division: "3AIML15" });
+    const timetables = await Timetable.find();
 
     if (!timetables.length) {
       console.log("⚠️ No timetables found");
