@@ -58,8 +58,16 @@ function parseMeta(headerText: string): TimetableMeta {
   };
 
   const semStr = grab(/SEMESTER\s*:?\s*([0-9]+)\s*(?:ST|ND|RD|TH)?/i);
+
+  const rawDivision = grab(/DIVISION\s*:?\s*([A-Z0-9_]+)/i);
+  const division = rawDivision
+    ? rawDivision.includes("_")
+      ? rawDivision.split("_").filter(Boolean).pop()!
+      : rawDivision
+    : null;
+
   return {
-    division: grab(/DIVISION\s*:?\s*([A-Z0-9]+)/i),
+    division,
     semester: semStr ? Number(semStr) : null,
     academicYear:
       grab(/ACADEMIC\s*YEAR\s*:?\s*([0-9]{2,4}\s*-\s*[0-9]{2,4})/i)?.replace(/\s+/g, "") ?? null,
@@ -179,7 +187,7 @@ export async function parseTimetablePdf(buffer: Buffer): Promise<ParsedTimetable
     .map((i) => i.text)
     .join(" ");
   const meta = parseMeta(headerText);
-  const divisionCore = meta.division?.replace(/\d+$/g, "").replace(/^\d+/, "") || null;
+  const divisionCore = meta.division?.match(/[A-Z]+/gi)?.pop() || null;
 
   const timeColItems = items
     .filter((it) => it.x < firstColLeft && it.y < headerY && it.y > legendY)
